@@ -46,18 +46,12 @@ class Robot:
 
     """ Sample the accessible positions (= the potential plans)."""
     def sample_positions(self):
-        self.points = []
 
-        # TODO have a better mapping approach ? (grids ?)
+        # TODO have a better sampling approach (grids ?)
         # what size for the gridcell ? (range /2 ? other ? )
-        wrg = WeightedRandomGenerator(self.pos_map.image)
-
         # TODO fix magic number
-        for i in range(10):
-            idx = wrg()
-            # Beware of the order (height,width) (set empirically...)
-            self.points.append( np.unravel_index( idx, \
-                (self.pos_map.height, self.pos_map.width ) ) )
+        self.points = sample_points( self.pos_map, 10 )
+
 
     # TODO update pose
 
@@ -90,14 +84,8 @@ class Mission:
     Assume that the map is a distribution of probabilily,
     e.g the value are the utility. """
     def sample_objective(self):
-        self.points = []
 
-        wrg = WeightedRandomGenerator(self.map.image)
-
-        for i in range(self.sampling):
-            idx = wrg()
-            # Beware of the order (height,width) (set empirically...)
-            self.points.append( np.unravel_index( idx, (self.map.height, self.map.width ) ) )
+        self.points = sample_points( self.map, self.sampling )
 
     # Sample accessible positions each robot of the team
     def sample_all_positions(self):
@@ -255,10 +243,7 @@ def load_mission(mission_file):
 
     return mission
 
-
-
 if __name__ == "__main__":
-
     VERBOSE=True
 
     mission = load_mission(argv[1])

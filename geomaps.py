@@ -108,3 +108,20 @@ class Geomap:
     def point_idx2pix( idx ):
         return np.unravel_index( idx, (self.height,self.width) )
 
+""" Sample <n> points in the <geomap>.
+Consider the geomap has a discrete distribution of probability used for the
+sampling."""
+def sample_points( geomap, n ):
+
+    points = []
+
+    wrg = WeightedRandomGenerator(geomap.image)
+
+    for i in range(n):
+        idx = wrg()
+        # Beware of the order (height,width) (set empirically...)
+        points.append( np.unravel_index( idx, \
+            (geomap.height, geomap.width ) ) )
+
+    return points
+
