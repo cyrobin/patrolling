@@ -346,6 +346,7 @@ if __name__ == "__main__":
     m =  Mission (  mission )
     m.sample_objective()
     m.display_situation()
+    m.sample_all_positions()
 
     print "Done."
 
