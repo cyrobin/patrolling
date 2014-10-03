@@ -1,4 +1,4 @@
 patrolling
 ==========
 
-Python Pattrolling Planner (using GLPK)
+Python Patrolling Planner (using GLPK)
