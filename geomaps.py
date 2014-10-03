@@ -9,6 +9,7 @@ import random
 import bisect
 import operator as operator
 import numpy as np
+from math import sqrt
 
 VERBOSE = False
 
@@ -112,7 +113,6 @@ class Geomap:
 Consider the geomap has a discrete distribution of probability used for the
 sampling."""
 def sample_points( geomap, n ):
-
     points = []
 
     wrg = WeightedRandomGenerator(geomap.image)
@@ -124,4 +124,26 @@ def sample_points( geomap, n ):
             (geomap.height, geomap.width ) ) )
 
     return points
+
+""" Return the existing connections between the <points> in the <geomap>.
+Paths refer to indexes in self.points and are like a sparse matrix
+indicating the connections between the accessible points.
+One may set a limit for the number of connections by points, setting a
+maximum branching factor."""
+# FIXME currently it does not use indexes but coordinates
+def compute_paths( geomap, points, branching_factor = 3 ):
+    paths = []
+    # TODO It currently use the distance, which obviously not reliable (and
+    # costly?) => use a djikstra 1 to all, which stop after the first three (=>
+    # get path !)
+    for (i,p) in enumerate(points):
+        links = sorted(points, key=lambda x: dist(p,x))
+        paths.append(links[1:branching_factor+1])
+
+    return paths
+
+""" Return the distance beween to points """
+def dist( (x1,y1),(x2,y2) ):
+    return sqrt( (x1-x2)**2 + (y1-y2)**2 )
+
 

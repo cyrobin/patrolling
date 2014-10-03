@@ -43,6 +43,7 @@ class Robot:
         self.pos_map     = Geomap(self.map_file)
 
         self.points = []
+        self.paths  = []
 
     """ Sample the accessible positions (= the potential plans)."""
     def sample_positions(self):
@@ -52,6 +53,11 @@ class Robot:
         # TODO fix magic number
         self.points = sample_points( self.pos_map, 10 )
 
+        # Compute the path links between positions
+        # Paths refer to indexes in self.points and are like a sparse matrix
+        # indicating the connections between the accessible points
+        #FIXME currently it does not use indexes but coordinates
+        self.paths = compute_paths( self.pos_map, self.points )
 
     # TODO update pose
 
@@ -100,6 +106,8 @@ class Mission:
 
     """ Display map, robots and sampled positions """
     def display_situation(self):
+        # Beware of the axis-inversion (y,x) spotted empirically
+        # when plotting points and so on
         global FSIZE
         global COLORS
 
@@ -111,24 +119,33 @@ class Mission:
 
         # sampled points
         if self.points:
-            # Beware of the order (y,x) (set empirically...)
             y,x = zip(*self.points)
             plt.plot(x, y, 'o', c=COLORS[c])
 
-        # TODO Robots positions
+        # Robots positions and paths
         for r in self.team:
-            if r.points:
-                c += 1
-                # Beware of the order (y,x) (set empirically...)
-                y,x = zip(*r.points)
-                plt.plot(x, y, 'v', c=COLORS[c]) # TODO improve display
+            if not r.points:
+                continue
 
+            # Each robot has a specific color
+            c += 1
             if len(COLORS) == c:
                 c = 0
 
-        # TODO available paths
+            # Accessible positions
+            x,y = zip(*r.points)
+            plt.plot(y, x, 'v', c=COLORS[c])
 
-        # TODO Visibility links
+            # Path links are drawn as staight segments
+            if not r.paths:
+                continue
+
+            segments = []
+            for (i,l) in enumerate(r.paths):
+                (x1,y1) = r.points[i]
+                for (x2,y2) in l:
+                    segments.extend([(y1,y2),(x1,x2),COLORS[c]])
+            plt.plot(*segments)
 
         # TODO Caption
 
@@ -244,13 +261,14 @@ def load_mission(mission_file):
     return mission
 
 if __name__ == "__main__":
-    VERBOSE=True
+    #VERBOSE=True
 
     mission = load_mission(argv[1])
     m =  Mission (  mission )
     m.sample_objective()
     m.sample_all_positions()
 
+    print "Plotting..."
     m.display_situation()
 
     print "Done."
