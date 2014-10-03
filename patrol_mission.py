@@ -19,6 +19,8 @@ from pprint import pprint
 
 VERBOSE=False
 FSIZE = (15,15) # plot (figure size)
+COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
+        'purple','darkgoldenrod' ,'red')
 
 def accumulate(iterable, func=operator.add):
     'Return running totals (itertools.accumulate() in Python2)'
@@ -209,23 +211,38 @@ class Mission:
     """ Display map, robots and sampled positions """
     def display_situation(self):
         global FSIZE
+        global COLORS
+
+        c = 0 ; # colors
+
         plt.subplots(figsize = FSIZE)
         imgplot = plt.imshow(self.map.image)
-        imgplot.set_cmap('gray') # color
+        imgplot.set_cmap('gray')
 
         # sampled points
         if self.points:
             # Beware of the order (y,x) (set empirically...)
             y,x = zip(*self.points)
-            plt.plot(x, y, 'o', c='green')
+            plt.plot(x, y, 'o', c=COLORS[c])
 
         # TODO Robots positions
+        for r in self.team:
+            if r.points:
+                c += 1
+                # Beware of the order (y,x) (set empirically...)
+                y,x = zip(*r.points)
+                plt.plot(x, y, 'v', c=COLORS[c]) # TODO improve display
 
-        # TODO Robots accessible positions
+            if len(COLORS) == c:
+                c = 0
+
+        # TODO available paths
 
         # TODO Visibility links
 
         # TODO Caption
+
+        # TODO plan ?
 
         plt.show()
         print "Display done"
@@ -345,8 +362,9 @@ if __name__ == "__main__":
     mission = load_mission(argv[1])
     m =  Mission (  mission )
     m.sample_objective()
-    m.display_situation()
     m.sample_all_positions()
+
+    m.display_situation()
 
     print "Done."
 
