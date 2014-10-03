@@ -136,6 +136,11 @@ class Mission:
             x,y = zip(*r.points)
             plt.plot(y, x, 'v', c=COLORS[c])
 
+            # TODO Visibility links
+            #plt.plot(y, x, 'o', c=COLORS[c], alpha= 0.3, linewidth = r.range)
+            #plt.plot(y, x, 'o', c=COLORS[c], alpha= 1.0, linewidth = 2000.5)
+            #plt.Circle((.5,.5),.2,color='b')
+
             # Path links are drawn as staight segments
             if not r.paths:
                 continue
