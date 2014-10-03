@@ -138,8 +138,22 @@ class Robot:
 
         self.pos_map     = Geomap(self.map_file)
 
-    # TODO sample position
-    #u'points': [(1, 2), (2, 3), (3, 4), (4.1, 5.7), (99, 99)],
+        self.points = []
+
+    """ Sample the accessible positions (= the potential plans)."""
+    def sample_positions(self):
+        self.points = []
+
+        # TODO have a better mapping approach ? (grids ?)
+        # what size for the gridcell ? (range /2 ? other ? )
+        wrg = WeightedRandomGenerator(self.pos_map.image)
+
+        # TODO fix magic number
+        for i in range(10):
+            idx = wrg()
+            # Beware of the order (height,width) (set empirically...)
+            self.points.append( np.unravel_index( idx, \
+                (self.pos_map.height, self.pos_map.width ) ) )
 
     # TODO update pose
 
@@ -181,11 +195,10 @@ class Mission:
             # Beware of the order (height,width) (set empirically...)
             self.points.append( np.unravel_index( idx, (self.map.height, self.map.width ) ) )
 
-
-
-    #u'points': [(1, 2), (2, 3), (3, 4), (4.1, 5.7), (99, 99)],
-
-    # TODO Sample position for robots ?
+    # Sample accessible positions each robot of the team
+    def sample_all_positions(self):
+        for r in self.team:
+            r.sample_positions()
 
     # TODO Solve / glpk
 
