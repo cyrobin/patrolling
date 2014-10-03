@@ -13,13 +13,12 @@ import bisect
 import operator as operator
 import time
 import numpy as np
-#import getopt
 from sys import argv, exit
 from math import sqrt
 from pprint import pprint
 
 VERBOSE=False
-FSIZE = (15,15)
+FSIZE = (15,15) # plot (figure size)
 
 def accumulate(iterable, func=operator.add):
     'Return running totals (itertools.accumulate() in Python2)'
@@ -148,8 +147,6 @@ class Robot:
 
     # TODO display map (and pos/points)?
 
-    # TODO print ?
-
     """end"""
 
 class Mission:
@@ -171,14 +168,13 @@ class Mission:
 
         self.points = [] # the sampled points to be observed
 
-    """ Sample the observable position (= the objective).
+    """ Sample the observable positions (= the objective).
     Assume that the map is a distribution of probabilily,
     e.g the value are the utility. """
     def sample_objective(self):
         self.points = []
 
         wrg = WeightedRandomGenerator(self.map.image)
-        mm = self.map.image.reshape(-1)
 
         for i in range(self.sampling):
             idx = wrg()
@@ -194,6 +190,7 @@ class Mission:
     # TODO Solve / glpk
 
     # TODO Update sensing
+
     # TODO Update robot's poses
 
     """ Display map, robots and sampled positions """
@@ -209,23 +206,18 @@ class Mission:
             y,x = zip(*self.points)
             plt.plot(x, y, 'o', c='green')
 
-        # Robots positions
-        # TODO
+        # TODO Robots positions
 
-        # Robots accessible positions
-        # TODO
+        # TODO Robots accessible positions
 
-        # Visibility links
-        # TODO
+        # TODO Visibility links
 
-        # Caption
-        # TODO
+        # TODO Caption
 
         plt.show()
         print "Display done"
 
-    # Dump map (as a distribution of probability)
-    # TODO
+    # TODO Dump map (as a distribution of probability)
 
     """ end """
 
