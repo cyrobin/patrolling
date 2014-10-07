@@ -7,6 +7,7 @@ TODO Descriptif
 
 import json
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 import time
 import numpy as np
 from sys import argv, exit
@@ -15,7 +16,7 @@ from pprint import pprint
 from geomaps import *
 
 VERBOSE=False
-FSIZE = (15,15) # plot (figure size)
+FSIZE = (12,12) # plot (figure size)
 COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
         'purple','darkgoldenrod' ,'red')
 
@@ -48,7 +49,6 @@ class Robot:
     """ Sample the accessible positions (= the potential plans)."""
     def sample_positions(self):
 
-        # TODO have a better sampling approach (grids ?)
         # what size for the gridcell ? (range /2 ? other ? )
         # TODO fix magic number
         self.points = sample_points( self.pos_map, 10 )
@@ -62,8 +62,6 @@ class Robot:
     # TODO update pose
 
     # TODO store / compute plans
-
-    # TODO display map (and pos/points)?
 
     """end"""
 
@@ -107,20 +105,27 @@ class Mission:
     """ Display map, robots and sampled positions """
     def display_situation(self):
         # Beware of the axis-inversion (y,x) spotted empirically
-        # when plotting points and so on
+        # when plotting points, axis, and so on
         global FSIZE
         global COLORS
 
         c = 0 ; # colors
 
-        plt.subplots(figsize = FSIZE)
+        fig,ax = plt.subplots( figsize = FSIZE )
         imgplot = plt.imshow(self.map.image)
         imgplot.set_cmap('gray')
+        plt.colorbar() #  Utility
+
+        marks,labels = [],[]
 
         # sampled points
         if self.points:
-            y,x = zip(*self.points)
-            plt.plot(x, y, 'o', c=COLORS[c])
+            x,y = zip(*self.points)
+            mark, = plt.plot(y, x, 'o', c=COLORS[c] )
+            label = "Observable positions"
+
+            marks.append(mark)
+            labels.append(label)
 
         # Robots positions and paths
         for r in self.team:
@@ -134,12 +139,22 @@ class Mission:
 
             # Accessible positions
             x,y = zip(*r.points)
-            plt.plot(y, x, 'v', c=COLORS[c])
+            mark, = plt.plot(y, x, 'v', c=COLORS[c])
+            label= "accessible positions ({})".format(r.name)
 
-            # TODO Visibility links
-            #plt.plot(y, x, 'o', c=COLORS[c], alpha= 0.3, linewidth = r.range)
-            #plt.plot(y, x, 'o', c=COLORS[c], alpha= 1.0, linewidth = 2000.5)
-            #plt.Circle((.5,.5),.2,color='b')
+            marks.append(mark)
+            labels.append(label)
+
+            # Visibility (sensed areas)
+            for xp,yp in zip(x,y):
+                sensor_rays = Ellipse((yp,xp),  \
+                        width = 2*r.range/self.map.scale_y, \
+                        height = 2*r.range/self.map.scale_x, \
+                        angle = 0, color=COLORS[c], alpha = 0.15)
+                ax.add_artist(sensor_rays)
+
+            marks.append( sensor_rays )
+            labels.append( "Sensing ({})".format(r.name) )
 
             # Path links are drawn as staight segments
             if not r.paths:
@@ -150,14 +165,20 @@ class Mission:
                 (x1,y1) = r.points[i]
                 for (x2,y2) in l:
                     segments.extend([(y1,y2),(x1,x2),COLORS[c]])
-            plt.plot(*segments)
+            mark = plt.plot(*segments)
 
-        # TODO Caption
+            marks.append( mark[0] )
+            labels.append( "Path links ({})".format(r.name) )
 
         # TODO plan ?
 
+        # Caption
+        ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
+        #ax.legend(marks,labels, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,\
+           #ncol=2, mode="expand", borderaxespad=0.)
+        plt.axis([0,self.map.width,self.map.height,0])
         plt.show()
-        print "Display done"
+        print "Display done."
 
     # TODO Dump map (as a distribution of probability)
 
@@ -273,7 +294,7 @@ if __name__ == "__main__":
     m.sample_objective()
     m.sample_all_positions()
 
-    print "Plotting..."
+    print "Displaying..."
     m.display_situation()
 
     print "Done."
