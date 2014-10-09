@@ -136,56 +136,54 @@ class Mission:
 
         # Robots positions and paths
         for r in self.team:
-            if not r.points:
-                continue
-
             # Each robot has a specific color
             c += 1
             if len(COLORS) == c:
                 c = 0
 
-            # Accessible positions
-            x,y = zip(*r.points)
-            mark, = plt.plot(y, x, 'v', c=COLORS[c])
+            # starting position
+            mark, = plt.plot(r.pos[1],r.pos[0], '^', c=COLORS[c])
             label= "accessible positions ({})".format(r.name)
 
-            marks.append(mark)
-            labels.append(label)
+            if r.points:
+                # Accessible positions
+                x,y = zip(*r.points)
+                #mark, = plt.plot(y, x, 'v', c=COLORS[c])
+                #label= "accessible positions ({})".format(r.name)
 
-            # Visibility (sensed areas)
-            for xp,yp in zip(x,y):
-                sensor_rays = Ellipse((yp,xp),  \
-                        width = 2*r.range/self.map.scale_y, \
-                        height = 2*r.range/self.map.scale_x, \
-                        angle = 0, color=COLORS[c], alpha = 0.15)
-                ax.add_artist(sensor_rays)
+                #marks.append(mark)
+                #labels.append(label)
 
-            marks.append( sensor_rays )
-            labels.append( "Sensing ({})".format(r.name) )
+                # Visibility (sensed areas)
+                for xp,yp in zip(x,y):
+                    sensor_rays = Ellipse((yp,xp),  \
+                            width = 2*r.range/self.map.scale_y, \
+                            height = 2*r.range/self.map.scale_x, \
+                            angle = 0, color=COLORS[c], alpha = 0.15)
+                    ax.add_artist(sensor_rays)
+
+                marks.append( sensor_rays )
+                labels.append( "Sensing ({})".format(r.name) )
 
             # Path links are drawn as staight segments
-            if not r.paths:
-                continue
+            if r.paths:
+                segments = []
+                for (p,l) in r.paths.iteritems():
+                    (x1,y1) = p
+                    for (x2,y2) in l:
+                        segments.extend([(y1,y2),(x1,x2),COLORS[c]])
+                mark = plt.plot(*segments,linestyle='--')
 
-            segments = []
-            for (p,l) in r.paths.iteritems():
-                (x1,y1) = p
-                for (x2,y2) in l:
-                    segments.extend([(y1,y2),(x1,x2),COLORS[c]])
-            mark = plt.plot(*segments,linestyle='--')
-
-            marks.append( mark[0] )
-            labels.append( "Path links ({})".format(r.name) )
+                marks.append( mark[0] )
+                labels.append( "Path links ({})".format(r.name) )
 
             # Plan -- links are drawn as staight segments
-            if not r.plan:
-                continue
+            if r.plan:
+                x,y = zip(*r.plan)
+                mark = plt.plot(y,x, color = COLORS[c], linewidth = 2.0)
 
-            x,y = zip(*r.plan)
-            mark = plt.plot(y,x, color = COLORS[c], linewidth = 2.0)
-
-            marks.append( mark[0] )
-            labels.append( "Plan({})".format(r.name) )
+                marks.append( mark[0] )
+                labels.append( "Plan({})".format(r.name) )
 
         # Caption
         ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
