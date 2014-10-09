@@ -22,7 +22,6 @@ def solve_top(mission):
     #FIXME use cost
 
     # DECISION VARIABLES
-    #beginModel('
     pb = model('Team Orienteering Problem through flow formulation')
 
     # x[r,p,q] is a boolean variable that indicates if robot r goes from p to q
@@ -36,7 +35,6 @@ def solve_top(mission):
     # each robot leaves its own starting position (once!)
     pb.st( [ sum( x[r,r.pos[0:2],q] for q in N[r] ) == 1 for r in R ], \
             'leave starting postion' )
-
 
     # nw define the last position, which is unique
     nw = pb.var( M, 'nw', bool) # == 1 iff final node, 0 otherwise
@@ -53,11 +51,11 @@ def solve_top(mission):
     pb.st( [ sum( x[r,q,p] for q in N[r] ) <= 1 for r in R for p in N[r] ], 'enter once' )
 
     # MTZ Subtour Eliminating Constraints
-    z = pb.var( M, 'z', int) #integer >=1
-    pb.st( [ z[r,p] >= 1 for r,p in M ])
-    pb.st( [ z[r,r.pos[0:2]] == 1 for r in R ])
+    z = pb.var( M, 'z', int) #integer >=0
+    pb.st( [ z[r,p] >= 0 for r,p in M ])
+    pb.st( [ z[r,r.pos[0:2]] == 0 for r in R ])
     pb.st( [ z[r,p] <= len(N[r]) for r,p in M ])
-    pb.st( [ z[r,p] - z[r,q] + 1 <= ( len(N[r]) -1 ) * (1 - x[r,p,q]) for r,p,q in E ] )
+    pb.st( [ z[r,p] - z[r,q] + 1 <= ( len(N[r]) ) * (1 - x[r,p,q]) for r,p,q in E ] )
 
     print "GLPK: init done. Solving..."
 
