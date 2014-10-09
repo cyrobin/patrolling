@@ -53,7 +53,7 @@ class Robot:
 
         # what size for the gridcell ? (range /2 ? other ? )
         # TODO fix magic number
-        self.points = sample_points( self.pos_map, 10 )
+        self.points = sample_points( self.pos_map, 5 )
 
         # Compute the path links between positions
         # <paths> is a dictionary using the positions in self.points as entry
