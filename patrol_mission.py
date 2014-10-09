@@ -37,7 +37,6 @@ class Robot:
         self.fov         = robot[u'sensor'][u'fov']
         self.sensor_pose = robot[u'sensor'][u'pose']
 
-        # FIXME update to pixel positions (see geomaps)
         self.pos         = (robot[u'start_pose'][u'x'], \
                             robot[u'start_pose'][u'y'], \
                             robot[u'start_pose'][u'z'], \
@@ -56,14 +55,13 @@ class Robot:
         # TODO fix magic number
         self.points = sample_points( self.pos_map, 5 )
 
+        # Add the current position (which is obviously valid !)
+        self.points.append(self.pos[0:2])
+
         # Compute the path links between positions
         # <paths> is a dictionary using the positions in self.points as entry
         # and may be seen as a sparse matrix indicating the connections between
         # the accessible points.
-        #self.paths = compute_paths( self.pos_map, self.points, [self.pos[0:2]])
-
-        # FIXME
-        self.points.append(self.pos[0:2])
         self.paths = compute_paths( self.pos_map, self.points)
 
     # TODO update pose
