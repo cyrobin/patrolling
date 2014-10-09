@@ -47,6 +47,7 @@ class Robot:
 
         self.points = []
         self.paths  = {}
+        self.plan   = []
 
     """ Sample the accessible positions (= the potential plans)."""
     def sample_positions(self):

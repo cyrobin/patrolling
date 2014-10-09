@@ -7,6 +7,7 @@ See:
 
 from pymprog import *
 from pprint import pprint
+import itertools
 import pdb
 
 def solve_top(mission):
@@ -78,22 +79,36 @@ def solve_top(mission):
 
     pb.solve() #solve the TOP problem
 
-    c = 0
-    for r in R:
-        for p in N[r]:
-            print "{} : {} : {} ({}) : # {}".format(r,p,nw[r,p].primal,sum( x[r,q,p].primal for q in N[r] ) - sum( x[r,p,q].primal for q in N[r] ), z[r,p].primal )
-            for q in N[r]:
-                if x[r,p,q].primal ==  1:
-                    print "{} : {} ------> {}".format(r,p,q)
-                    c+=1
-                else :
-                    print "{} : {} xxxxxxx {}".format(r,p,q)
-            print ""
-        print "-----------------------------------------"
+    # TODO clean up
+    #c = 0
+    #for r in R:
+        #for p in N[r]:
+            #print "{} : {} : {} ({}) : # {}".format(r,p,nw[r,p].primal,sum( x[r,q,p].primal for q in N[r] ) - sum( x[r,p,q].primal for q in N[r] ), z[r,p].primal )
+            #for q in N[r]:
+                #if x[r,p,q].primal ==  1:
+                    #print "{} : {} ------> {}".format(r,p,q)
+                    #c+=1
+                #else :
+                    #print "{} : {} xxxxxxx {}".format(r,p,q)
+            #print ""
+        #print "-----------------------------------------"
 
-    print c
+    #print c
+
+    # Retrieve solution
+    for r in R:
+        r.plan = []
+        curr = r.pos[0:2]
+        r.plan.append(curr)
+        for s in N[r]:
+            for p,q in itertools.product(N[r],N[r]):
+                if p == curr and x[r,p,q].primal ==  1:
+                    #print (p,q)
+                    curr = q
+                    r.plan.append(curr)
+        print(r.plan)
 
     print " :-) "
 
-    pdb.set_trace()
+    #pdb.set_trace()
 
