@@ -111,7 +111,7 @@ class Mission:
 
     # TODO Update robot's poses
 
-    """ Display map, robots and sampled positions """
+    """ Display map, robots, sampled positions and current plans """
     def display_situation(self):
         # Beware of the axis-inversion (y,x) spotted empirically
         # when plotting points, axis, and so on
@@ -174,12 +174,20 @@ class Mission:
                 (x1,y1) = p
                 for (x2,y2) in l:
                     segments.extend([(y1,y2),(x1,x2),COLORS[c]])
-            mark = plt.plot(*segments)
+            mark = plt.plot(*segments,linestyle='--')
 
             marks.append( mark[0] )
             labels.append( "Path links ({})".format(r.name) )
 
-        # TODO plan ?
+            # Plan -- links are drawn as staight segments
+            if not r.plan:
+                continue
+
+            x,y = zip(*r.plan)
+            mark = plt.plot(y,x, color = COLORS[c], linewidth = 2.0)
+
+            marks.append( mark[0] )
+            labels.append( "Plan({})".format(r.name) )
 
         # Caption
         ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
@@ -303,11 +311,11 @@ if __name__ == "__main__":
     m.sample_objective()
     m.sample_all_positions()
 
-    #print "Displaying..."
-    #m.display_situation()
-
     print "Solving..."
     m.solve()
+
+    print "Displaying..."
+    m.display_situation()
 
     print "Done."
 
