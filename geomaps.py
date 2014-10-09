@@ -126,19 +126,21 @@ def sample_points( geomap, n ):
     return points
 
 """ Return the existing connections between the <points> in the <geomap>.
-Paths refer to indexes in self.points and are like a sparse matrix
-indicating the connections between the accessible points.
-One may set a limit for the number of connections by points, setting a
-maximum branching factor."""
-# FIXME currently it does not use indexes but coordinates
+<paths> refers to the positions in self.points and may be seen as a sparse
+matrix indicating the connections between the accessible points. One may set a
+limit for the number of connections by points, setting a maximum branching
+factor."""
 def compute_paths( geomap, points, branching_factor = 3 ):
-    paths = []
+    paths = {}
+
     # TODO It currently use the distance, which obviously not reliable (and
     # costly?) => use a djikstra 1 to all, which stop after the first three (=>
     # get path !)
-    for (i,p) in enumerate(points):
+
+    #The first element of <points> is considered as 'non-return' position
+    for p in points:
         links = sorted(points, key=lambda x: dist(p,x))
-        paths.append(links[1:branching_factor+1])
+        paths[p] = links[1:branching_factor+1]
 
     return paths
 

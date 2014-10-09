@@ -44,7 +44,7 @@ class Robot:
         self.pos_map     = Geomap(self.map_file)
 
         self.points = []
-        self.paths  = []
+        self.paths  = {}
 
     """ Sample the accessible positions (= the potential plans)."""
     def sample_positions(self):
@@ -54,10 +54,14 @@ class Robot:
         self.points = sample_points( self.pos_map, 10 )
 
         # Compute the path links between positions
-        # Paths refer to indexes in self.points and are like a sparse matrix
-        # indicating the connections between the accessible points
-        #FIXME currently it does not use indexes but coordinates
-        self.paths = compute_paths( self.pos_map, self.points )
+        # <paths> is a dictionary using the positions in self.points as entry
+        # and may be seen as a sparse matrix indicating the connections between
+        # the accessible points.
+        #self.paths = compute_paths( self.pos_map, self.points, [self.pos[0:2]])
+
+        # FIXME
+        self.points.append(self.pos[0:2])
+        self.paths = compute_paths( self.pos_map, self.points)
 
     # TODO update pose
 
@@ -161,8 +165,8 @@ class Mission:
                 continue
 
             segments = []
-            for (i,l) in enumerate(r.paths):
-                (x1,y1) = r.points[i]
+            for (p,l) in r.paths.iteritems():
+                (x1,y1) = p
                 for (x2,y2) in l:
                     segments.extend([(y1,y2),(x1,x2),COLORS[c]])
             mark = plt.plot(*segments)
