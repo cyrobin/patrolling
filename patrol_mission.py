@@ -14,6 +14,7 @@ from sys import argv, exit
 from pprint import pprint
 
 from geomaps import *
+from top_glpk import solve_top
 
 VERBOSE=False
 FSIZE = (12,12) # plot (figure size)
@@ -100,7 +101,9 @@ class Mission:
         for r in self.team:
             r.sample_positions()
 
-    # TODO Solve / glpk
+    # Solve / glpk
+    def solve(self):
+        solve_top(self)
 
     # TODO Update sensing
 
@@ -298,8 +301,11 @@ if __name__ == "__main__":
     m.sample_objective()
     m.sample_all_positions()
 
-    print "Displaying..."
-    m.display_situation()
+    #print "Displaying..."
+    #m.display_situation()
+
+    print "Solving..."
+    m.solve()
 
     print "Done."
 
