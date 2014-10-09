@@ -37,6 +37,7 @@ class Robot:
         self.fov         = robot[u'sensor'][u'fov']
         self.sensor_pose = robot[u'sensor'][u'pose']
 
+        # FIXME update to pixel positions (see geomaps)
         self.pos         = (robot[u'start_pose'][u'x'], \
                             robot[u'start_pose'][u'y'], \
                             robot[u'start_pose'][u'z'], \
