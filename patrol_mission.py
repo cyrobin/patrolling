@@ -88,6 +88,7 @@ class Mission:
         self.mission    = _mission
         self.map_file   = self.mission[u'map']
         self.sampling   = self.mission[u'sampling']
+        self.period     = self.mission[u'period']
 
         self.map        = Geomap(self.map_file)
 
@@ -215,6 +216,7 @@ def load_mission(mission_file):
     {
         "map": "./path_to_the_observation_map.png",
         "sampling": Nbr_of_sampling_points_(eg: 50),
+        "period": max_cost_by_period_(eg: 99),
         "team":
             [ {
                 "name": "robot_1",
@@ -256,6 +258,7 @@ def load_mission(mission_file):
 
     {u'map': u'./obsvertion_map.png',
      u'sampling': 50,
+     u'period': 99,
      u'team': [{u'description': u'./agv.json',
                 u'name': u'robot_1',
                 u'pos_map': u'./pos_map_agv.png',

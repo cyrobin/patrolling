@@ -26,12 +26,10 @@ class GLPKSolver:
         N = {r:r.points for r in R}
         M = [(r,p) for r in R for p in N[r]]
         E = [(r,p,q) for r in R for p in N[r] for q in N[r] ]
+        T =  self.mission.period # Maximal cost allowed
 
         # FIXME fake utility
         u = { (r,p): 1 for r in R for p in N[r] }
-
-        #FIXME use cost
-        T = 299.0
 
         # DECISION VARIABLES
         pb = model('Team Orienteering Problem through flow formulation')
