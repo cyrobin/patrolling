@@ -17,6 +17,7 @@ class GLPKSolver:
     def __init__(self, mission):
 
         self.mission = mission
+        self.cost_penalty = 0.1 # FIXME MAGIC NUMBER
 
     def solve_top(self):
 
@@ -76,9 +77,7 @@ class GLPKSolver:
         print "GLPK: init done. Solving..."
 
         # OBJECTIVE
-
-        #maximize util : sum{l in LOCATIONS} u[l]*y[l];
-        pb.max( sum( u[r,j]*x[r,i,j] for r,i,j in E), 'Utility' )
+        pb.max( sum( u[r,j]*x[r,i,j] - self.cost_penalty*plan_cost[r] for r,i,j in E), 'Utility' )
 
         # TODO x -> y  (?!)
         ## Is the location visited or not (by at least one robot) ?
