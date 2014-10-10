@@ -100,6 +100,45 @@ class Robot:
 
     # TODO store / compute plans
 
+    """ Display the wmap """
+    def display_wmap(self):
+        # Beware of the axis-inversion (y,x) spotted empirically
+        # when plotting points, axis, and so on
+        global FSIZE
+        global COLORS
+
+        c = 0 ; # colors
+
+        fig,ax = plt.subplots( figsize = FSIZE )
+        imgplot = plt.imshow(self.wpos_map.image)
+        imgplot.set_cmap('gray')
+        plt.colorbar() #  Utility
+
+        marks,labels = [],[]
+
+        # sampled accessible positions
+        if self.points:
+            x,y = zip(*self.points)
+            mark, = plt.plot(y, x, 'o', c=COLORS[c] )
+            label = "Accessible positions ({})".format(self.name)
+
+            marks.append(mark)
+            labels.append(label)
+
+        # starting position
+        c += 1
+        mark, = plt.plot(self.pos[1],self.pos[0], '^', c=COLORS[c])
+        label= "Starting position ({})".format(self.name)
+
+        marks.append(mark)
+        labels.append(label)
+
+        # Caption
+        ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
+        plt.axis([0,self.wpos_map.width,self.wpos_map.height,0])
+
+        plt.show()
+
     """end"""
 
 class Mission:
@@ -178,7 +217,7 @@ class Mission:
 
             # starting position
             mark, = plt.plot(r.pos[1],r.pos[0], '^', c=COLORS[c])
-            label= "accessible positions ({})".format(r.name)
+            label= "Starting position ({})".format(r.name)
 
             if r.points:
                 # Accessible positions
@@ -186,7 +225,7 @@ class Mission:
 
                 if not r.paths:
                     mark, = plt.plot(y, x, 'v', c=COLORS[c])
-                    label = "accessible positions ({})".format(r.name)
+                    label = "Accessible positions ({})".format(r.name)
 
                     marks.append(mark)
                     labels.append(label)
@@ -227,6 +266,7 @@ class Mission:
         #ax.legend(marks,labels, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,\
            #ncol=2, mode="expand", borderaxespad=0.)
         plt.axis([0,self.map.width,self.map.height,0])
+
         plt.show()
         print "Display done."
 
@@ -353,11 +393,13 @@ if __name__ == "__main__":
     with Timer('Sampling positions'):
         m.sample_all_positions()
 
-    #print "Solving..."
-    #with Timer('Solving'):
-        #m.solve()
+    print "Solving..."
+    with Timer('Solving'):
+        m.solve()
 
     print "Displaying..."
+    for r in m.team:
+        r.display_wmap()
     m.display_situation()
 
     print "Done."
