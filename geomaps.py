@@ -81,12 +81,14 @@ class Geomap:
         self.custom_x_origin = float(self.meta['CUSTOM_X_ORIGIN'])
         self.custom_y_origin = float(self.meta['CUSTOM_Y_ORIGIN'])
 
-        # TODO it seems this is not necessary
-        #negative = np.vectorize( lambda x : 255 - x )
-        #self.image = negative( self.image )
-
         if VERBOSE:
             print "Image is {}x{}".format(self.width,self.height)
+
+    """ Return the distance beween two 2D points.
+    Use the Euclidian distance and keep the length unit. """
+    def dist( self, (x1,y1), (x2,y2) ):
+        return sqrt( ( (x1-x2) )**2 \
+                   + ( (y1-y2) )**2 )
 
     """ Translate pixel coordinates into utm """
     def point_pix2utm(self, x, y):
@@ -109,11 +111,23 @@ class Geomap:
     def point_idx2pix( self, idx ):
         return np.unravel_index( idx, (self.height,self.width) )
 
-    """ Return the distance beween two 2D points, on the map.
-    Currently use the Euclidian distance. """
-    def dist( self, (x1,y1), (x2,y2) ):
-        return sqrt( ( (x1-x2) * self.scale_x )**2 \
-                   + ( (y1-y2) * self.scale_y )**2 )
+    """ Translate pixel length into meters length """
+    def length_pix2meter(self, d):
+        if ( abs(self.scale_x) == abs(self.scale_y) ):
+            return d * abs(self.scale_x)
+        else:
+            print self.scale_x
+            print self.scale_y
+            raise RuntimeError("Trying to scale a map that has different axis scales")
+
+    """ Translate meters length into pixel length """
+    def length_meter2pix(self, d):
+        if (abs(self.scale_x) == abs(self.scale_y) ):
+            return d / abs(self.scale_x)
+        else:
+            print self.scale_x
+            print self.scale_y
+            raise RuntimeError("Trying to scale a map that has different axis scales")
 
 """ Sample <n> points in the <geomap>.
 Consider the geomap has a discrete distribution of probability used for the
@@ -174,7 +188,7 @@ def make_sensor_function(geomap, name, coef, srange):
             d = geomap.dist(p,q)
             if d == 0:
                 return 1
-            elif d > srange:
+            elif d > geomap.length_meter2pix(srange):
                 return 0
             else:
                 return coef / sqrt(d)
