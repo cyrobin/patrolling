@@ -28,7 +28,7 @@ class GLPKSolver:
         T =  self.mission.period # Maximal cost allowed
 
         # Utility = weighted sum of observed areas
-        u = { (r,p): sum( self.mission.map.image[p] * r.sensor(p,q) for q in self.mission.points) \
+        u = { (r,p): sum( self.mission.map.image[q] * r.sensor(p,q) for q in self.mission.points) \
                 for r in R for p in N[r] }
 
         # DECISION VARIABLES
