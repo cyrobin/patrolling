@@ -9,7 +9,7 @@ import random
 import bisect
 import operator as operator
 import numpy as np
-from math import sqrt
+from math import sqrt,log
 
 VERBOSE = False
 
@@ -150,4 +150,58 @@ def compute_paths( geomap, points, f_cost, branching_factor = 3 ):
         paths[p] = links[1:branching_factor+1]
 
     return paths
+
+""" This function return an appropriate sensor function defined by its name,
+its coefficient, its range, and the map in use. A sensor function takes as
+argument  the sensor position and the position of the sensed object / area,
+to return the quality of the observation, which is a float between 0 and 1, 1
+being perfectly observed."""
+def make_sensor_function(geomap, name, coef, srange):
+    """ Here follows sensor functions of various quality. """
+    def linear_sensor(coef):
+        def _function(p,q):
+            d = geomap.dist(p,q)
+            if d == 0:
+                return 1
+            elif d > srange:
+                return 0
+            else:
+                return coef / d
+        return  _function
+
+    def square_sensor(coef):
+        def _function(p,q):
+            d = geomap.dist(p,q)
+            if d == 0:
+                return 1
+            elif d > srange:
+                return 0
+            else:
+                return coef / sqrt(d)
+        return  _function
+
+    def log_sensor(coef):
+        def _function(p,q):
+            d = geomap.dist(p,q)
+            if d < 1:
+                return 1
+            elif d > srange:
+                return 0
+            else:
+                return coef / log(d)
+        return  _function
+
+    """ This dictionnary lists available sensors function. """
+    sensors = {\
+            'linear': linear_sensor, \
+            'square': square_sensor, \
+            'log': log_sensor, \
+            }
+
+    try:
+        function = sensors[name](coef)
+    except KeyError:
+        raise ValueError('invalid input')
+
+    return function
 

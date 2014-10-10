@@ -30,10 +30,14 @@ class Robot:
         self.name        = robot[u'name']
         self.desc        = robot[u'description']
         self.map_file    = robot[u'pos_map']
+
         self.mass        = robot[u'platform'][u'mass']
         self.radius      = robot[u'platform'][u'radius']
         self.velocity    = robot[u'platform'][u'velocity']
-        self.range       = robot[u'sensor'][u'range']
+
+        self.sname       = robot[u'sensor'][u'name']
+        self.squality    = robot[u'sensor'][u'quality']
+        self.srange      = robot[u'sensor'][u'range']
         self.fov         = robot[u'sensor'][u'fov']
         self.sensor_pose = robot[u'sensor'][u'pose']
 
@@ -43,6 +47,12 @@ class Robot:
                             robot[u'start_pose'][u't'] )
 
         self.pos_map     = Geomap(self.map_file)
+
+        # FIXME use a different geomap for the sensor
+        self.sensor = make_sensor_function( self.pos_map, \
+                                            self.sname,
+                                            self.squality,
+                                            self.srange)
 
         self.points = []
         self.paths  = {}
@@ -249,7 +259,9 @@ def load_mission(mission_file):
             "velocity":1.0
         },
         "sensor":{
+            "name":'linear'
             "range":20.0,
+            "quality":3.5,
             "fov":6.28,
             "pose":{"x":0.1,"y":0.2,"z":0.7,"t":0.0}
         }
@@ -270,7 +282,9 @@ def load_mission(mission_file):
                                       u'x': 0.1,
                                       u'y': 0.2,
                                       u'z': 0.7},
+                            u'quality': 3.5},
                             u'range': 20.0},
+                            u'name': linear},
                 u'start_pose': {u't': 0.0, u'x': 0.1, u'y': 0.2, u'z': 0.7}},
                {u'description': u'./agv.json',
                 u'name': u'robot_2',
