@@ -89,12 +89,12 @@ class Geomap:
             print "Image is {}x{}".format(self.width,self.height)
 
     """ Translate pixel coordinates into utm """
-    def point_pix2utm(x, y):
+    def point_pix2utm(self, x, y):
         return [ x * self.scale_x + self.utm_x ,
                  y * self.scale_y + self.utm_y ]
 
     """ Translate pixel coordinates into utm with custom origin """
-    def point_pix2custom(x, y):
+    def point_pix2custom(self, x, y):
         p = point_pix2utm(x, y)
         return [p[0] - self.custom_x_origin,
                 p[1] - self.custom_y_origin]
@@ -106,7 +106,7 @@ class Geomap:
         #return image.ravel(
 
     """ Transform one-liner index into image pixels coordinates """
-    def point_idx2pix( idx ):
+    def point_idx2pix( self, idx ):
         return np.unravel_index( idx, (self.height,self.width) )
 
 """ Sample <n> points in the <geomap>.
