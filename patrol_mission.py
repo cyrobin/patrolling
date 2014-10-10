@@ -159,11 +159,13 @@ class Mission:
             if r.points:
                 # Accessible positions
                 x,y = zip(*r.points)
-                #mark, = plt.plot(y, x, 'v', c=COLORS[c])
-                #label= "accessible positions ({})".format(r.name)
 
-                #marks.append(mark)
-                #labels.append(label)
+                if not r.paths:
+                    mark, = plt.plot(y, x, 'v', c=COLORS[c])
+                    label = "accessible positions ({})".format(r.name)
+
+                    marks.append(mark)
+                    labels.append(label)
 
                 # Visibility (sensed areas)
                 for xp,yp in zip(x,y):
