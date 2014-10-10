@@ -95,12 +95,12 @@ class Geomap:
 
     """ Translate pixel coordinates into utm with custom origin """
     def point_pix2custom(self, x, y):
-        p = point_pix2utm(x, y)
+        p = self.point_pix2utm(x, y)
         return [p[0] - self.custom_x_origin,
                 p[1] - self.custom_y_origin]
 
     """ Transform pixels coordinates into one-liner index """
-    #def point_pix2idx(x, y):
+    #def point_pix2idx(self, x, y):
         #return y*self.width + x
         #TODO use flat / ravel instead ? zith coords ?
         #return image.ravel(
