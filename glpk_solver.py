@@ -106,6 +106,7 @@ class GLPKSolver:
                         curr = q
                         r.plan.append(curr)
             print(r.plan)
+            print "number of steps: {}".format(len(r.plan))
 
         print "Gathered utility = %.2f :-) " % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
         print "vs Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
