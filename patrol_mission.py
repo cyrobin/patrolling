@@ -61,8 +61,8 @@ class Robot:
     """ Sample the accessible positions (= the potential plans)."""
     def sample_positions(self):
 
-        # what size for the gridcell ? (range /2 ? other ? )
-        # TODO fix magic number
+        # FIXME fix magic number
+        # TODO change the way points are sampled
         self.points = sample_points( self.pos_map, 5 )
 
         # Add the current position (which is obviously valid !)
@@ -77,10 +77,11 @@ class Robot:
         #dummy position, for test purpose
         self.points.append((0,0))
 
-    """ Return the cost for a robot to travel from p to q.
-    Currently use the euclidian distance and the speed of the robot. """
+    """ Return the cost (time) for a robot to travel from p to q.
+    Use the euclidian distance and the speed of the robot. """
     def cost(self,p,q):
-        return self.pos_map.dist(p,q) / self.velocity
+        d = self.pos_map.length_pix2meter( self.pos_map.dist(p,q) )
+        return d / self.velocity
 
     # TODO update pose
 
@@ -180,9 +181,9 @@ class Mission:
                 # Visibility (sensed areas)
                 for xp,yp in zip(x,y):
                     sensor_rays = Ellipse((yp,xp),  \
-                            width = 2*r.range/self.map.scale_y, \
-                            height = 2*r.range/self.map.scale_x, \
-                            angle = 0, color=COLORS[c], alpha = 0.15)
+                        width  = 2*self.map.length_meter2pix( r.srange ), \
+                        height = 2*self.map.length_meter2pix( r.srange ), \
+                        angle = 0, color=COLORS[c], alpha = 0.15)
                     ax.add_artist(sensor_rays)
 
                 marks.append( sensor_rays )
