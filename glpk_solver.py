@@ -8,7 +8,6 @@ See:
 from pymprog import *
 from pprint import pprint
 import itertools
-import pdb
 
 class GLPKSolver:
     'Class embedding the GLPK solvers'
@@ -48,14 +47,13 @@ class GLPKSolver:
 
         # nw define the last position, which is unique
         nw = pb.var( M, 'nw', bool) # == 1 iff final node, 0 otherwise
-        pb.st( [ sum( nw[r,p] for p in N[r] ) == 1 for r in R ], 'Unique final pose' )
+        pb.st( [ sum( nw[r,p] for p in N[r] ) == 1 for r in R ], 'unique final pose' )
 
         # robots entering an accessible node must leave the same node but the final one
         pb.st( [ sum( x[r,q,p] for q in N[r] ) \
                - sum( x[r,p,q] for q in N[r] ) \
                - nw[r,p] \
                == 0 for r,p in M  if p != r.pos[0:2] ], 'enter' )
-
 
         # Go to the position only once
         pb.st( [ sum( x[r,q,p] for q in N[r] ) <= 1 for r in R for p in N[r] ], 'enter once' )
@@ -69,19 +67,13 @@ class GLPKSolver:
 
         # Cost limit
         plan_cost = pb.var(R, 'plan cost', float)
-        pb.st( [ plan_cost[r] >= 0 for r in R ], 'positive plan costs')
-        pb.st( [ sum( r.cost(p,q)*x[r,p,q] for p in N[r] for q in N[r]) <= T for r in R ], 'maximal cost allowed')
+        pb.st( [ plan_cost[r] <= T for r in R ], 'maximal cost allowed')
+        pb.st( [ sum( r.cost(p,q)*x[r,p,q] for p in N[r] for q in N[r]) <= plan_cost[r] for r in R ], 'compute plan cost')
 
         print "GLPK: init done. Solving..."
 
         # OBJECTIVE
-        pb.max( sum( u[r,j]*x[r,i,j] - self.cost_penalty*plan_cost[r] for r,i,j in E), 'Utility' )
-
-        # TODO x -> y  (?!)
-        ## Is the location visited or not (by at least one robot) ?
-        #var y{LOCATIONS} binary; # = 1 iff the place is visited, 0 otherwise
-        #s.t. ob5 {l in LOCATIONS} : y[l]
-                #<= sum{r in R, (a,aLoc) in N, (b,bLoc) in N: r = a && r = b && l = aLoc } x[r,a,aLoc,b,bLoc];
+        pb.max( sum( u[r,j]*x[r,i,j] - self.cost_penalty*plan_cost[r] for r,i,j in E), 'utility' )
 
         pb.solve() #solve the TOP problem
 
@@ -114,7 +106,6 @@ class GLPKSolver:
                         r.plan.append(curr)
             print(r.plan)
 
-        print " :-) "
-
-        #pdb.set_trace()
+        print "Gathered utility = %.2f :-) " % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
+        print "vs Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
