@@ -14,7 +14,7 @@ from sys import argv, exit
 from pprint import pprint
 
 from geomaps import *
-from top_glpk import solve_top
+from glpk_solver import *
 
 VERBOSE=False
 FSIZE = (12,12) # plot (figure size)
@@ -97,6 +97,8 @@ class Mission:
 
         self.points = [] # the sampled points to be observed
 
+        self.solver = GLPKSolver(self)
+
     """ Sample the observable positions (= the objective).
     Assume that the map is a distribution of probabilily,
     e.g the value are the utility. """
@@ -111,7 +113,7 @@ class Mission:
 
     # Solve / glpk
     def solve(self):
-        solve_top(self)
+        self.solver.solve_top()
 
     # TODO Update sensing
 
