@@ -16,7 +16,7 @@ class GLPKSolver:
     def __init__(self, mission):
 
         self.mission = mission
-        self.cost_penalty = 0.1 # FIXME MAGIC NUMBER
+        self.cost_penalty = 0.0001 # FIXME MAGIC NUMBER
 
     def solve_top(self):
 
