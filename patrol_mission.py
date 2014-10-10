@@ -62,7 +62,15 @@ class Robot:
         # <paths> is a dictionary using the positions in self.points as entry
         # and may be seen as a sparse matrix indicating the connections between
         # the accessible points.
-        self.paths = compute_paths( self.pos_map, self.points)
+        self.paths = compute_paths( self.pos_map, self.points, self.cost )
+
+        #dummy position, for test purpose
+        self.points.append((0,0))
+
+    """ Return the cost for a robot to travel from p to q.
+    Currently use the euclidian distance and the speed of the robot. """
+    def cost(self,p,q):
+        return self.pos_map.dist(p,q) / self.velocity
 
     # TODO update pose
 

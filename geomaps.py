@@ -134,8 +134,9 @@ def sample_points( geomap, n ):
 <paths> refers to the positions in self.points and may be seen as a sparse
 matrix indicating the connections between the accessible points. One may set a
 limit for the number of connections by points, setting a maximum branching
-factor."""
-def compute_paths( geomap, points, branching_factor = 3 ):
+factor. The choice of the connexions are related to their cost, computed through
+the <f_cost> function."""
+def compute_paths( geomap, points, f_cost, branching_factor = 3 ):
     paths = {}
 
     # TODO It currently use the distance, which obviously not reliable (and
@@ -144,7 +145,7 @@ def compute_paths( geomap, points, branching_factor = 3 ):
 
     #The first element of <points> is considered as 'non-return' position
     for p in points:
-        links = sorted(points, key=lambda x: geomap.dist(p,x))
+        links = sorted(points, key=lambda x: f_cost(p,x))
         paths[p] = links[1:branching_factor+1]
 
     return paths
