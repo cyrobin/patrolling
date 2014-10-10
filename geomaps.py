@@ -10,6 +10,7 @@ import bisect
 import operator as operator
 import numpy as np
 from math import sqrt,log
+from copy import copy
 
 VERBOSE = False
 
@@ -128,6 +129,31 @@ class Geomap:
             print self.scale_x
             print self.scale_y
             raise RuntimeError("Trying to scale a map that has different axis scales")
+
+"""  Compute a <wmap> by weighting pos_map using the robot sensor,
+the utility map <u_map> and the sampled observable points given as
+arguments."""
+# FIXME ensure that all geomaps are concistant ??
+# (or deal with it ?!)
+def make_weighted_map( pos_map, sensor, u_map, points ) :
+
+    # Copy pos_map
+    wmap = copy(pos_map)
+
+    # local references
+    image = u_map.image
+    wimage = wmap.image.astype(np.float, copy=False)
+
+    # weight pos_map.image
+    for (p,w) in np.ndenumerate(wimage):
+        if w > 0:
+            #FIXME 0.5 is a magic number
+            wimage[p] = w * ( 0.01 + sum( sensor(p,q) for q in points ) )
+
+    # Normalization
+    wmap.image = (255 * wimage / wimage.max() ).astype(np.uint8, copy=False)
+
+    return wmap
 
 """ Sample <n> points in the <geomap>.
 Consider the geomap has a discrete distribution of probability used for the

@@ -5,6 +5,9 @@ Cyril Robin -- LAAS-CNRS -- 2014
 TODO Descriptif
 """
 
+# FIXME ensure that all geomaps are concistant ??
+# (or deal with it ?!)
+
 import json
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
@@ -59,12 +62,21 @@ class Robot:
         self.paths  = {}
         self.plan   = []
 
-    """ Sample the accessible positions (= the potential plans)."""
-    def sample_positions(self):
+    """ Sample the accessible positions (= the potential plans).
+    To do so, compute a intermediary <wpos_map> weighted by the robot sensor,
+    the utility map <u_map> and the sampled observable points given as
+    arguments."""
+    def sample_positions(self, u_map, points):
 
+        # Compute the intermediary self.wpos_map : it embodies the utility of
+        # the position to be sampled while taking into account the
+        # accessibility criteria given by self.pos_map
+        self.wpos_map = make_weighted_map( self.pos_map, \
+                                           self.sensor, \
+                                           u_map, \
+                                           points)
         # FIXME fix magic number
-        # TODO change the way points are sampled
-        self.points = sample_points( self.pos_map, 5 )
+        self.points = sample_points( self.wpos_map, 5 )
 
         # Add the current position (which is obviously valid !)
         self.points.append(self.pos[0:2])
@@ -119,12 +131,12 @@ class Mission:
 
         self.points = sample_points( self.map, self.sampling )
 
-    # Sample accessible positions each robot of the team
+    """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
         for r in self.team:
-            r.sample_positions()
+            r.sample_positions( self.map, self.points )
 
-    # Solve / glpk
+    """ Solve / glpk """
     def solve(self):
         self.solver.solve_top()
 
