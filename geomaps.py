@@ -205,11 +205,23 @@ def make_sensor_function(geomap, name, coef, srange):
                 return coef / log(d)
         return  _function
 
+    def quadratic_sensor(coef):
+        def _function(p,q):
+            d = geomap.dist(p,q)
+            if d == 0:
+                return 1
+            elif d > geomap.length_meter2pix(srange):
+                return 0
+            else:
+                return coef / d**2
+        return  _function
+
     """ This dictionnary lists available sensors function. """
     sensors = {\
             'linear': linear_sensor, \
             'square': square_sensor, \
             'log': log_sensor, \
+            'quadratic': quadratic_sensor, \
             }
 
     try:
