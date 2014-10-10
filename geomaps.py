@@ -177,7 +177,7 @@ def make_sensor_function(geomap, name, coef, srange):
             d = geomap.dist(p,q)
             if d == 0:
                 return 1
-            elif d > srange:
+            elif d > geomap.length_meter2pix(srange):
                 return 0
             else:
                 return coef / d
@@ -197,9 +197,9 @@ def make_sensor_function(geomap, name, coef, srange):
     def log_sensor(coef):
         def _function(p,q):
             d = geomap.dist(p,q)
-            if d < 1:
+            if d <= 1:
                 return 1
-            elif d > srange:
+            elif d > geomap.length_meter2pix(srange):
                 return 0
             else:
                 return coef / log(d)
