@@ -112,7 +112,8 @@ class Geomap:
     """ Return the distance beween two 2D points, on the map.
     Currently use the Euclidian distance. """
     def dist( self, (x1,y1), (x2,y2) ):
-        return sqrt( (x1-x2)**2 + (y1-y2)**2 )
+        return sqrt( ( (x1-x2) * self.scale_x )**2 \
+                   + ( (y1-y2) * self.scale_y )**2 )
 
 """ Sample <n> points in the <geomap>.
 Consider the geomap has a discrete distribution of probability used for the
