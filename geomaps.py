@@ -109,6 +109,11 @@ class Geomap:
     def point_idx2pix( self, idx ):
         return np.unravel_index( idx, (self.height,self.width) )
 
+    """ Return the distance beween two 2D points, on the map.
+    Currently use the Euclidian distance. """
+    def dist( self, (x1,y1), (x2,y2) ):
+        return sqrt( (x1-x2)**2 + (y1-y2)**2 )
+
 """ Sample <n> points in the <geomap>.
 Consider the geomap has a discrete distribution of probability used for the
 sampling."""
@@ -139,13 +144,8 @@ def compute_paths( geomap, points, branching_factor = 3 ):
 
     #The first element of <points> is considered as 'non-return' position
     for p in points:
-        links = sorted(points, key=lambda x: dist(p,x))
+        links = sorted(points, key=lambda x: geomap.dist(p,x))
         paths[p] = links[1:branching_factor+1]
 
     return paths
-
-""" Return the distance beween to points """
-def dist( (x1,y1),(x2,y2) ):
-    return sqrt( (x1-x2)**2 + (y1-y2)**2 )
-
 
