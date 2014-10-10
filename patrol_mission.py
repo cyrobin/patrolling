@@ -15,6 +15,7 @@ from pprint import pprint
 
 from geomaps import *
 from glpk_solver import *
+from timer import Timer
 
 VERBOSE=False
 FSIZE = (12,12) # plot (figure size)
@@ -332,13 +333,17 @@ def load_mission(mission_file):
 if __name__ == "__main__":
     #VERBOSE=True
 
-    mission = load_mission(argv[1])
-    m =  Mission (  mission )
-    m.sample_objective()
-    m.sample_all_positions()
+    with Timer('Loading mission file'):
+        mission = load_mission(argv[1])
+        m =  Mission (  mission )
+    with Timer('Sampling observable points'):
+        m.sample_objective()
+    with Timer('Sampling positions'):
+        m.sample_all_positions()
 
-    print "Solving..."
-    m.solve()
+    #print "Solving..."
+    #with Timer('Solving'):
+        #m.solve()
 
     print "Displaying..."
     m.display_situation()
