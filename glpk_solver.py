@@ -27,8 +27,9 @@ class GLPKSolver:
         E = [(r,p,q) for r in R for p in N[r] for q in N[r] ]
         T =  self.mission.period # Maximal cost allowed
 
-        # FIXME fake utility
-        u = { (r,p): 1 for r in R for p in N[r] }
+        # Utility = weighted sum of observed areas
+        u = { (r,p): sum( self.mission.map.image[p] * r.sensor(p,q) for q in self.mission.points) \
+                for r in R for p in N[r] }
 
         # DECISION VARIABLES
         pb = model('Team Orienteering Problem through flow formulation')
