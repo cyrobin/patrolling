@@ -44,7 +44,7 @@ class GLPKSolver:
             if not p in r.paths or not q in r.paths[p] ], 'check path validity')
 
         # each robot leaves its own starting position (once!)
-        pb.st( [ sum( x[r,r.pos[0:2],q] for q in N[r] ) == 1 for r in R ], \
+        pb.st( [ sum( x[r,r.pose[0:2],q] for q in N[r] ) == 1 for r in R ], \
                 'leave starting postion' )
 
         # nw define the last position, which is unique
@@ -55,7 +55,7 @@ class GLPKSolver:
         pb.st( [ sum( x[r,q,p] for q in N[r] ) \
                - sum( x[r,p,q] for q in N[r] ) \
                - nw[r,p] \
-               == 0 for r,p in M  if p != r.pos[0:2] ], 'enter' )
+               == 0 for r,p in M  if p != r.pose[0:2] ], 'enter' )
 
         # Go to the position only once
         pb.st( [ sum( x[r,q,p] for q in N[r] ) <= 1 for r in R for p in N[r] ], 'enter once' )
@@ -63,7 +63,7 @@ class GLPKSolver:
         # MTZ Subtour Eliminating Constraints
         z = pb.var( M, 'z', int) #integer >=0
         pb.st( [ z[r,p] >= 0 for r,p in M ])
-        pb.st( [ z[r,r.pos[0:2]] == 0 for r in R ])
+        pb.st( [ z[r,r.pose[0:2]] == 0 for r in R ])
         pb.st( [ z[r,p] <= len(N[r]) for r,p in M ])
         pb.st( [ z[r,p] - z[r,q] + 1 <= ( len(N[r]) ) * (1 - x[r,p,q]) for r,p,q in E ] )
 
@@ -98,7 +98,7 @@ class GLPKSolver:
         # Retrieve solution
         for r in R:
             r.plan = []
-            curr = r.pos[0:2]
+            curr = r.pose[0:2]
             r.plan.append(curr)
             for s in N[r]:
                 for p,q in itertools.product(N[r],N[r]):

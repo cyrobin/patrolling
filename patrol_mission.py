@@ -45,7 +45,7 @@ class Robot:
         self.fov         = robot[u'sensor'][u'fov']
         self.sensor_pose = robot[u'sensor'][u'pose']
 
-        self.pos         = (robot[u'start_pose'][u'x'], \
+        self.pose         = (robot[u'start_pose'][u'x'], \
                             robot[u'start_pose'][u'y'], \
                             robot[u'start_pose'][u'z'], \
                             robot[u'start_pose'][u't'] )
@@ -79,7 +79,7 @@ class Robot:
         self.points = sample_points( self.wpos_map, 5 )
 
         # Add the current position (which is obviously valid !)
-        self.points.append(self.pos[0:2])
+        self.points.append(self.pose[0:2])
 
         # Compute the path links between positions
         # <paths> is a dictionary using the positions in self.points as entry
@@ -127,7 +127,7 @@ class Robot:
 
         # starting position
         c += 1
-        mark, = plt.plot(self.pos[1],self.pos[0], '^', c=COLORS[c])
+        mark, = plt.plot(self.pose[1],self.pose[0], '^', c=COLORS[c])
         label= "Starting position ({})".format(self.name)
 
         marks.append(mark)
@@ -216,7 +216,7 @@ class Mission:
                 c = 0
 
             # starting position
-            mark, = plt.plot(r.pos[1],r.pos[0], '^', c=COLORS[c])
+            mark, = plt.plot(r.pose[1],r.pose[0], '^', c=COLORS[c])
             label= "Starting position ({})".format(r.name)
 
             if r.points:
