@@ -6,6 +6,7 @@ TODO Descriptif
 """
 
 from mission import *
+from constant import *
 
 from sys import argv, exit
 from timer import Timer

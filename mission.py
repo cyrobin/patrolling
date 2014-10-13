@@ -17,10 +17,7 @@ from geomaps import *
 from glpk_solver import *
 from robot import Robot
 
-VERBOSE=False
-FSIZE = (12,12) # plot (figure size)
-COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
-        'purple','darkgoldenrod' ,'red')
+from constant import *
 
 class Mission:
     'Class describing and planning a mission'

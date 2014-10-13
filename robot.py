@@ -9,10 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from geomaps import *
 
-VERBOSE=False
-FSIZE = (12,12) # plot (figure size)
-COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
-        'purple','darkgoldenrod' ,'red')
+from constant import *
 
 class Robot:
     'Class embodying a given robot'

@@ -9,6 +9,8 @@ from pymprog import *
 from pprint import pprint
 import itertools
 
+from constant import *
+
 class GLPKSolver:
     'Class embedding the GLPK solvers'
 

@@ -12,8 +12,7 @@ import numpy as np
 from math import sqrt,log
 from copy import copy
 
-VERBOSE = False
-
+from constant import *
 
 def accumulate(iterable, func=operator.add):
     'Return running totals (itertools.accumulate() in Python2)'
