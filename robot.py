@@ -93,10 +93,11 @@ class Robot:
         if p:
             print "Yes !"
             self.pose = p
-        else:
+        elif self.plan:
             (x,y) = self.plan[-1] # plan is 2D
             (z,t) = self.pose[2:4] # plan is 2D
             self.pose = (x,y,z,t)
+        # else do nothing
 
         # Deal with (no longer valid) past path and sampled positions
         self.old_plans.append(self.plan)

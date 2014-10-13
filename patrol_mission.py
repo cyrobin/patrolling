@@ -13,8 +13,6 @@ from timer import Timer
 
 
 if __name__ == "__main__":
-    #VERBOSE=True
-
     with Timer('Loading mission file'):
         mission = load_mission(argv[1])
         m =  Mission (  mission )
@@ -30,10 +28,9 @@ if __name__ == "__main__":
     print "Displaying..."
     #for r in m.team:
         #r.display_wmap()
-    #m.display_situation()
+    m.display_situation()
 
     print "Updating pose:"
     m.update_poses()
 
     print "Done."
-
