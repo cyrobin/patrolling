@@ -67,8 +67,7 @@ class Robot:
         else:
             self.wpos_map = self.pos_map
 
-        # FIXME fix magic number
-        self.points = sample_points( self.wpos_map, 5, \
+        self.points = sample_points( self.wpos_map, N_SAMPLED_POS, \
                 min_dist = self.wpos_map.length_meter2pix( 0.5*self.srange ) )
 
         # Add the current position (which is obviously valid !)
@@ -79,9 +78,6 @@ class Robot:
         # and may be seen as a sparse matrix indicating the connections between
         # the accessible points.
         self.paths = compute_paths( self.pos_map, self.points, self.cost )
-
-        #dummy position, for test purpose
-        self.points.append((0,0))
 
     """ Return the cost (time) for a robot to travel from p to q.
     Use the euclidian distance and the speed of the robot. """
