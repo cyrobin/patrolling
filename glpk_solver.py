@@ -3,6 +3,11 @@ Use Python Math Programming (pympl) to use glpk through python
 See:
     /home/crobin/dev/src/pympl-4.2
     ~/dev/lib/python2.7/site-packages
+
+Cyril Robin -- LAAS-CNRS -- 2014
+
+TODO Descriptif
+
 """
 
 from pymprog import *
