@@ -35,13 +35,19 @@ class GLPKSolver:
         T =  self.mission.period # Maximal cost allowed
 
         # Utility = weighted sum of observed areas
-        # TODO use r.wpos_map ? (when computed)
         u = { (r,p): sum( self.mission.map.image[q] * r.sensor(p,q) for q in self.mission.points) \
                 for r in R for p in N[r] }
 
-        # DECISION VARIABLES
+        # Pymprog init and option
         pb = model('Team Orienteering Problem through flow formulation')
 
+        # see http://pymprog.sourceforge.net/solvopt.html for options
+        #pb.solvopt(method='exact', verbosity=2) # seems less efficient
+        pb.solvopt(tm_lim=SOLVER_TIME_OUT,verbosity=2)
+        if VERBOSE:
+            print "Solver options: {}".format( pb.solvopt() )
+
+        # DECISION VARIABLES
         # x[r,p,q] is a boolean variable that indicates if robot r goes from p to q
         x = pb.var(E, 'x', bool)
 

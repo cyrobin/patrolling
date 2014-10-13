@@ -103,7 +103,7 @@ class Robot:
             self.pose = (x,y,z,t)
 
         # Deal with (no longer valid) past path and sampled positions
-        self.old_plans.append(self.plans)
+        self.old_plans.append(self.plan)
         self.plans = []
         self.points = []
 
