@@ -1,3 +1,10 @@
+"""
+Cyril Robin -- LAAS-CNRS -- 2014
+
+Gather the shared constant and the empirically set parameters
+(and also some magic numbers)
+"""
+
 # Display
 VERBOSE=False
 #VERBOSE=True
