@@ -23,7 +23,7 @@ class GLPKSolver:
     def __init__(self, mission):
 
         self.mission = mission
-        self.cost_penalty = 0.0001 # FIXME MAGIC NUMBER
+        self.cost_penalty = COST_PENALTY
 
     def solve_top(self):
 
@@ -86,22 +86,6 @@ class GLPKSolver:
 
         pb.solve() #solve the TOP problem
 
-        # TODO clean up
-        #c = 0
-        #for r in R:
-            #for p in N[r]:
-                #print "{} : {} : {} ({}) : # {}".format(r,p,nw[r,p].primal,sum( x[r,q,p].primal for q in N[r] ) - sum( x[r,p,q].primal for q in N[r] ), z[r,p].primal )
-                #for q in N[r]:
-                    #if x[r,p,q].primal ==  1:
-                        #print "{} : {} ------> {}".format(r,p,q)
-                        #c+=1
-                    #else :
-                        #print "{} : {} xxxxxxx {}".format(r,p,q)
-                #print ""
-            #print "-----------------------------------------"
-
-        #print c
-
         # Retrieve solution
         for r in R:
             r.plan = []
@@ -113,9 +97,9 @@ class GLPKSolver:
                         #print (p,q)
                         curr = q
                         r.plan.append(curr)
-            print(r.plan)
-            print "number of steps: {}".format(len(r.plan))
+            if VERBOSE:
+                print "{} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
 
-        print "Gathered utility = %.2f :-) " % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
-        print "vs Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
+        print "[Planning] Gathered utility = %.2f :-) " % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
+        print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
