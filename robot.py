@@ -44,9 +44,10 @@ class Robot:
                                             self.squality,
                                             self.srange)
 
-        self.points = []
-        self.paths  = {}
-        self.plan   = []
+        self.points     = []
+        self.paths      = {}
+        self.plan       = []
+        self.old_plans  = []
 
     """ Sample the accessible positions (= the potential plans).
     To do so, optionnaly compute a intermediary <wpos_map> weighted by the
@@ -90,9 +91,9 @@ class Robot:
 
     """ Update the robot pos according to <p> : if no <p> is provided, then use
     the current robot's plan and set the pose to the last position of this
-    plan."""
+    plan. Either ways, the plan is tagged as 'old' and is wipped, just as the
+    sampled positions."""
     def update_pose(self, p=None):
-        print "{}: {}".format(self.name,self.pose)
         if p:
             print "Yes !"
             self.pose = p
@@ -101,7 +102,13 @@ class Robot:
             (z,t) = self.pose[2:4] # plan is 2D
             self.pose = (x,y,z,t)
 
-        print "{}: {}".format(self.name,self.pose)
+        # Deal with (no longer valid) past path and sampled positions
+        self.old_plans.append(self.plans)
+        self.plans = []
+        self.points = []
+
+        if VERBOSE:
+            print "{} new pose is {}".format(self.name,self.pose)
 
     # TODO store / compute plans
 
