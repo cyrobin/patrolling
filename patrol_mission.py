@@ -102,7 +102,20 @@ class Robot:
         d = self.pos_map.length_pix2meter( self.pos_map.dist(p,q) )
         return d / self.velocity
 
-    # TODO update pose
+    """ Update the robot pos according to <p> : if no <p> is provided, then use
+    the current robot's plan and set the pose to the last position of this
+    plan."""
+    def update_pose(self, p=None):
+        print "{}: {}".format(self.name,self.pose)
+        if p:
+            print "Yes !"
+            self.pose = p
+        else:
+            (x,y) = self.plan[-1] # plan is 2D
+            (z,t) = self.pose[2:4] # plan is 2D
+            self.pose = (x,y,z,t)
+
+        print "{}: {}".format(self.name,self.pose)
 
     # TODO store / compute plans
 
@@ -190,7 +203,16 @@ class Mission:
 
     # TODO Update sensing
 
-    # TODO Update robot's poses
+    """ Update the robots poses according to <p>, a vector of positions. If no
+    <p> is provided, then use the current robot's plan and set the pose to the
+    last position of this plan."""
+    def update_poses(self, p = None):
+        if p:
+            for i,r in enumerate(self.team):
+                r.update_pose(p[i])
+        else:
+            for r in self.team:
+                r.update_pose()
 
     """ Display map, robots, sampled positions and current plans """
     def display_situation(self):
@@ -407,9 +429,12 @@ if __name__ == "__main__":
         m.solve()
 
     print "Displaying..."
-    for r in m.team:
-        r.display_wmap()
-    m.display_situation()
+    #for r in m.team:
+        #r.display_wmap()
+    #m.display_situation()
+
+    print "Updating pose:"
+    m.update_poses()
 
     print "Done."
 
