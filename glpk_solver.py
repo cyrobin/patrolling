@@ -42,6 +42,7 @@ class GLPKSolver:
         pb = model('Team Orienteering Problem through flow formulation')
 
         # see http://pymprog.sourceforge.net/solvopt.html for options
+        # or  http://www.cnd.mcgill.ca/~ivan/it_ineq_script/python%20LP%20solvers/pympl.4.2/Doc/solvopt.rst
         #pb.solvopt(method='exact', verbosity=2) # seems less efficient
         pb.solvopt(tm_lim=SOLVER_TIME_OUT,verbosity=2)
         if VERBOSE:
