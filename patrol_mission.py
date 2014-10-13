@@ -71,10 +71,14 @@ class Robot:
         # Compute the intermediary self.wpos_map : it embodies the utility of
         # the position to be sampled while taking into account the
         # accessibility criteria given by self.pos_map
-        self.wpos_map = make_weighted_map( self.pos_map, \
-                                           self.sensor, \
-                                           u_map, \
-                                           points)
+        if weight:
+            self.wpos_map = make_weighted_map( self.pos_map, \
+                                               self.sensor, \
+                                               u_map, \
+                                               points)
+        else:
+            self.wpos_map = self.pos_map
+
         # FIXME fix magic number
         self.points = sample_points( self.wpos_map, 5 )
 
