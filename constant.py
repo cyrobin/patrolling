@@ -15,6 +15,7 @@ COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
 
 # Sampling option
 N_SAMPLED_POS = 15 # see Robot.py
+MIN_SAMPLING_DIST = 5 # see mission.py
 
 # SOLVER SETTINGS
 COST_PENALTY = 0.0001

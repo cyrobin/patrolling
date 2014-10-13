@@ -47,9 +47,8 @@ class Mission:
     minimal distance between them. """
     def sample_objective(self):
 
-        #FIXME magic number...
         self.points = sample_points( self.map, self.sampling, \
-                min_dist =  self.map.length_meter2pix( 5 ) )
+                min_dist =  self.map.length_meter2pix( MIN_SAMPLING_DIST ) )
 
     """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
@@ -60,7 +59,9 @@ class Mission:
     def solve(self):
         self.solver.solve_top()
 
-    # TODO Update sensing
+    # TODO Update map based on sensing
+
+    # TODO loop
 
     """ Update the robots poses according to <p>, a vector of positions. If no
     <p> is provided, then use the current robot's plan and set the pose to the
