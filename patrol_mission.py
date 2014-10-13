@@ -63,10 +63,11 @@ class Robot:
         self.plan   = []
 
     """ Sample the accessible positions (= the potential plans).
-    To do so, compute a intermediary <wpos_map> weighted by the robot sensor,
-    the utility map <u_map> and the sampled observable points given as
-    arguments."""
-    def sample_positions(self, u_map, points):
+    To do so, optionnaly compute a intermediary <wpos_map> weighted by the
+    robot sensor, the utility map <u_map> and the sampled observable points
+    given as arguments. The points are far apart with a minimal distance
+    proportional to the robot's sensor range"""
+    def sample_positions(self, u_map, points, weight = False):
 
         # Compute the intermediary self.wpos_map : it embodies the utility of
         # the position to be sampled while taking into account the
@@ -80,7 +81,8 @@ class Robot:
             self.wpos_map = self.pos_map
 
         # FIXME fix magic number
-        self.points = sample_points( self.wpos_map, 5 )
+        self.points = sample_points( self.wpos_map, 5, \
+                min_dist = self.wpos_map.length_meter2pix( 0.5*self.srange ) )
 
         # Add the current position (which is obviously valid !)
         self.points.append(self.pose[0:2])
@@ -169,10 +171,13 @@ class Mission:
 
     """ Sample the observable positions (= the objective).
     Assume that the map is a distribution of probabilily,
-    e.g the value are the utility. """
+    e.g the value are the utility. The sampled points are far apart, with a
+    minimal distance between them. """
     def sample_objective(self):
 
-        self.points = sample_points( self.map, self.sampling )
+        #FIXME magic number...
+        self.points = sample_points( self.map, self.sampling, \
+                min_dist =  self.map.length_meter2pix( 5 ) )
 
     """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
