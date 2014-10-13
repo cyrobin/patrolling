@@ -14,6 +14,7 @@ COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
         'purple','darkgoldenrod' ,'red')
 
 # Sampling option
+SAMPLING_TIME_OUT = 5 # 5s
 N_SAMPLED_POS = 15 # see Robot.py
 MIN_SAMPLING_DIST = 5 # see mission.py
 

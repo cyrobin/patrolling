@@ -11,6 +11,7 @@ import operator as operator
 import numpy as np
 from math import sqrt,log
 from copy import copy
+import time
 
 from constant import *
 
@@ -173,15 +174,20 @@ def sample_points( geomap, n, min_dist = 0 ):
 
     #for i in range(n):
     i = 0
-    while (i < n):
+    tstart = time.time()
+    while i < n and (time.time() - tstart) < SAMPLING_TIME_OUT :
         idx = wrg()
+        #print time.time() - tstart
         # Beware of the order (height,width) (set empirically...)
         p= np.unravel_index( idx, (geomap.height, geomap.width ) )
         if _not_too_close(p, points):
             points.append(p)
             i+=1
-        #FIXME: currently it may not finish
 
+    #TODO handle this with exceptions
+    if (time.time() - tstart) > SAMPLING_TIME_OUT :
+        print "!!! WARNING !!! Sampling timed out: only {} points sampled  \
+instead of {} required.".format(len(points),n)
 
     return points
 
