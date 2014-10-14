@@ -46,9 +46,10 @@ class Mission:
     e.g the value are the utility. The sampled points are far apart, with a
     minimal distance between them. """
     def sample_objective(self):
+        apply_scale = self.map.length_meter2pix
 
         self.points = sampled_points( self.map, self.sampling, \
-                min_dist =  self.map.length_meter2pix( MIN_SAMPLING_DIST ) )
+                min_dist = apply_scale( MIN_SAMPLING_DIST ) )
 
     """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
