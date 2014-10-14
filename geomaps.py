@@ -164,6 +164,16 @@ def sample_points( geomap, n, min_dist = 0, area = None ):
 
     if area:
         [(xmin,ymin),(xmax,ymax)] = area
+
+        # Bounded the area to the current map
+        xmin = max( 0, xmin )
+        ymin = max( 0, ymin )
+        xmax = min(geomap.height + 1, xmax )
+        ymax = min(geomap.width  + 1, ymax )
+
+        h = min( int(xmax-xmin), geomap.height)
+        w = min( int(ymax-ymin), geomap.width )
+
         wrg = WeightedRandomGenerator(geomap.image[xmin:xmax,ymin:ymax])
     else:
         wrg = WeightedRandomGenerator(geomap.image)
@@ -177,14 +187,16 @@ def sample_points( geomap, n, min_dist = 0, area = None ):
                 return False
         return True
 
-    #for i in range(n):
     i = 0
     tstart = time.time()
     while i < n and (time.time() - tstart) < SAMPLING_TIME_OUT :
         idx = wrg()
         # Beware of the order (height,width) (set empirically...)
         if area:
-            (x,y) = np.unravel_index( idx, (xmax-xmin, ymax-ymin) )
+            try:
+                (x,y) = np.unravel_index( idx, (h, w) )
+            except ValueError:
+                continue
             p = (x+xmin, y+ymin)
             if _not_too_close(p, points):
                 points.append(p)

@@ -71,10 +71,10 @@ class Robot:
         # Compute the accessible area to constraints the sampling to useful
         # positions only (e.g accessible for a cost inferior to <T>)
         max_dist = self.wpos_map.length_meter2pix( T / self.velocity )
-        xmin = max(0, self.pose[0] - max_dist)
-        ymin = max(0, self.pose[1] - max_dist)
-        xmax = min(self.wpos_map.height, self.pose[0] + max_dist) + 1
-        ymax = min(self.wpos_map.width,  self.pose[1] + max_dist) + 1
+        xmin = self.pose[0] - max_dist
+        ymin = self.pose[1] - max_dist
+        xmax = self.pose[0] + max_dist + 1
+        ymax = self.pose[1] + max_dist + 1
 
         self.points = sample_points( self.wpos_map, N_SAMPLED_POS, \
                 min_dist = self.wpos_map.length_meter2pix( 0.5*self.srange ), \
