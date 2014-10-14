@@ -58,7 +58,7 @@ class Mission:
 
     """ Solve / glpk """
     def solve(self):
-        self.solver.solve_top()
+        self.solver.solve_perception_tsp()
 
     # TODO Update map based on sensing
 

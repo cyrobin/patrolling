@@ -25,7 +25,20 @@ class GLPKSolver:
         self.mission = mission
         self.cost_penalty = COST_PENALTY
 
-    def solve_top(self):
+    """ Solve the problem as a perception-based TSP. """
+    def solve_perception_tsp(self):
+
+        # Utility = weighted sum of observed areas
+        def computed_utility( robot, position):
+            return sum( self.mission.map.image[observed] * \
+                    robot.sensor(position,observed) \
+                    for observed in self.mission.points )
+
+        self._solve_tsp(computed_utility)
+
+    """ Solve a multi-tsp-like problem as flow formulation.
+    The utility function is given as an argument (mandatory)."""
+    def _solve_tsp(self, computed_utility ):
 
         # DATA: define useful sets
         R = self.mission.team
@@ -35,8 +48,7 @@ class GLPKSolver:
         T =  self.mission.period # Maximal cost allowed
 
         # Utility = weighted sum of observed areas
-        u = { (r,p): sum( self.mission.map.image[q] * r.sensor(p,q) for q in self.mission.points) \
-                for r in R for p in N[r] }
+        u = { (r,p): computed_utility(r,p) for r in R for p in N[r] }
 
         # Pymprog init and option
         pb = model('Team Orienteering Problem through flow formulation')
