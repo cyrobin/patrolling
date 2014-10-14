@@ -14,23 +14,23 @@ from timer import Timer
 
 if __name__ == "__main__":
     with Timer('Loading mission file'):
-        mission = load_mission(argv[1])
-        m =  Mission (  mission )
+        json_mission = loaded_mission(argv[1])
+        mission =  Mission (  json_mission )
     with Timer('Sampling observable points'):
-        m.sample_objective()
+        mission.sample_objective()
     with Timer('Sampling positions'):
-        m.sample_all_positions()
+        mission.sample_all_positions()
 
     print "Solving..."
     with Timer('Solving'):
-        m.solve()
+        mission.solve()
 
     print "Displaying..."
-    #for r in m.team:
-        #r.display_wmap()
-    m.display_situation()
+    for robot in mission.team:
+        robot.display_weighted_map()
+    mission.display_situation()
 
     print "Updating pose:"
-    m.update_poses()
+    mission.update_poses()
 
     print "Done."

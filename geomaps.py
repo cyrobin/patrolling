@@ -16,7 +16,7 @@ import time
 from constant import *
 
 def accumulate(iterable, func=operator.add):
-    'Return running totals (itertools.accumulate() in Python2)'
+    'Return running totals (from itertools.accumulate() in Python3)'
     # accumulate([1,2,3,4,5]) --> 1 3 6 10 15
     # accumulate([1,2,3,4,5], operator.mul) --> 1 2 6 24 120
     it = iter(iterable)
@@ -86,10 +86,9 @@ class Geomap:
             print "Image is {}x{}".format(self.width,self.height)
 
     """ Return the distance beween two 2D points.
-    Use the Euclidian distance and keep the length unit. """
-    def dist( self, (x1,y1), (x2,y2) ):
-        return sqrt( ( (x1-x2) )**2 \
-                   + ( (y1-y2) )**2 )
+    Currently use the euclidian distance. Keep the length unit. """
+    def dist( self, p, q ):
+        return euclidian_distance(p,q)
 
     """ Translate pixel coordinates into utm """
     def point_pix2utm(self, x, y):
@@ -130,36 +129,44 @@ class Geomap:
             print self.scale_y
             raise RuntimeError("Trying to scale a map that has different axis scales")
 
+""" Return the euclidian distance beween two 2D points.
+Keep the length unit. """
+def euclidian_distance( (x1,y1), (x2,y2) ):
+    return sqrt( ( (x1-x2) )**2 \
+               + ( (y1-y2) )**2 )
+
 """  Compute a <wmap> by weighting pos_map using the robot sensor,
 the utility map <u_map> and the sampled observable points given as
 arguments."""
 # FIXME ensure that all geomaps are concistant ??
 # (or deal with it ?!)
-def make_weighted_map( pos_map, sensor, u_map, points ) :
+def built_weighted_map( pos_map, sensor, u_map, points ) :
 
     # Copy pos_map
-    wmap = copy(pos_map)
+    weight_map = copy(pos_map)
 
     # local references
     image = u_map.image
-    wimage = wmap.image.astype(np.float, copy=False)
+    wimage = weight_map.image.astype(np.float, copy=False)
 
     # weight pos_map.image
     for (p,w) in np.ndenumerate(wimage):
         if w > 0:
-            #FIXME 0.5 is a magic number
+            # FIXME 0.01 is a magic number which avoid to simply discard
+            # positions that are not in range of an observable points (instead
+            # they have a very low value)
             wimage[p] = w * ( 0.01 + sum( sensor(p,q) for q in points ) )
 
     # Normalization
-    wmap.image = (255 * wimage / wimage.max() ).astype(np.uint8, copy=False)
+    weight_map.image = (255 * wimage / wimage.max() ).astype(np.uint8, copy=False)
 
-    return wmap
+    return weight_map
 
 """ Sample <n> points in the <geomap>.
 Consider the geomap has a discrete distribution of probability used for the
 sampling. One can set a minimal distance to respect between the sampled points,
 and constrained them to a given area."""
-def sample_points( geomap, n, min_dist = 0, area = None ):
+def sampled_points( geomap, n, min_dist = 0, area = None ):
     points = []
 
     if area:
@@ -183,13 +190,13 @@ def sample_points( geomap, n, min_dist = 0, area = None ):
     then the function return True (ie one can keep <_p> as a valid sample> """
     def _not_too_close (_p, _points):
         for q in points:
-            if geomap.dist(_p,q) <  min_dist:
+            if euclidian_distance(_p,q) < min_dist:
                 return False
         return True
 
     i = 0
-    tstart = time.time()
-    while i < n and (time.time() - tstart) < SAMPLING_TIME_OUT :
+    t_start = time.time()
+    while i < n and (time.time() - t_start) < SAMPLING_TIME_OUT :
         idx = wrg()
         # Beware of the order (height,width) (set empirically...)
         if area:
@@ -208,9 +215,9 @@ def sample_points( geomap, n, min_dist = 0, area = None ):
                 i+=1
 
     #TODO handle this with exceptions
-    if (time.time() - tstart) > SAMPLING_TIME_OUT :
-        print "!!! WARNING !!! Sampling timed out: only {} points sampled  \
-instead of {} required.".format(len(points),n)
+    if (time.time() - t_start) > SAMPLING_TIME_OUT :
+        print "!WARNING! Sampling timed out ({} / {} points sampled)".format( \
+                len(points), n )
 
     return points
 
@@ -220,7 +227,7 @@ matrix indicating the connections between the accessible points. One may set a
 limit for the number of connections by points, setting a maximum branching
 factor. The choice of the connexions are related to their cost, computed through
 the <f_cost> function."""
-def compute_paths( geomap, points, f_cost, branching_factor = 3 ):
+def computed_paths( geomap, points, cost_function, branching_factor = 3 ):
     paths = {}
 
     # TODO It currently use the distance, which obviously not reliable (and
@@ -229,7 +236,7 @@ def compute_paths( geomap, points, f_cost, branching_factor = 3 ):
 
     #The first element of <points> is considered as 'non-return' position
     for p in points:
-        links = sorted(points, key=lambda x: f_cost(p,x))
+        links = sorted(points, key=lambda x: cost_function(p,x))
         paths[p] = links[1:branching_factor+1]
 
     return paths
@@ -239,14 +246,14 @@ its coefficient, its range, and the map in use. A sensor function takes as
 argument  the sensor position and the position of the sensed object / area,
 to return the quality of the observation, which is a float between 0 and 1, 1
 being perfectly observed."""
-def make_sensor_function(geomap, name, coef, srange):
+def built_sensor_function(geomap, name, coef, sensor_range):
     """ Here follows sensor functions of various quality. """
     def linear_sensor(coef):
         def _function(p,q):
-            d = geomap.dist(p,q)
+            d = euclidian_distance(p,q)
             if d == 0:
                 return 1
-            elif d > geomap.length_meter2pix(srange):
+            elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
                 return coef / d
@@ -254,10 +261,10 @@ def make_sensor_function(geomap, name, coef, srange):
 
     def square_sensor(coef):
         def _function(p,q):
-            d = geomap.dist(p,q)
+            d = euclidian_distance(p,q)
             if d == 0:
                 return 1
-            elif d > geomap.length_meter2pix(srange):
+            elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
                 return coef / sqrt(d)
@@ -265,10 +272,10 @@ def make_sensor_function(geomap, name, coef, srange):
 
     def log_sensor(coef):
         def _function(p,q):
-            d = geomap.dist(p,q)
+            d = euclidian_distance(p,q)
             if d <= 1:
                 return 1
-            elif d > geomap.length_meter2pix(srange):
+            elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
                 return coef / log(d)
@@ -276,17 +283,17 @@ def make_sensor_function(geomap, name, coef, srange):
 
     def quadratic_sensor(coef):
         def _function(p,q):
-            d = geomap.dist(p,q)
+            d = euclidian_distance(p,q)
             if d == 0:
                 return 1
-            elif d > geomap.length_meter2pix(srange):
+            elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
                 return coef / d**2
         return  _function
 
     """ This dictionnary lists available sensors function. """
-    sensors = {\
+    available_sensor_models = {\
             'linear': linear_sensor, \
             'square': square_sensor, \
             'log': log_sensor, \
@@ -294,9 +301,9 @@ def make_sensor_function(geomap, name, coef, srange):
             }
 
     try:
-        function = sensors[name](coef)
+        sensor_model = available_sensor_models[name](coef)
     except KeyError:
-        raise ValueError('invalid input')
+        raise ValueError('Unknown sensor name. Please choose another model.')
 
-    return function
+    return sensor_model
 

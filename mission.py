@@ -47,13 +47,13 @@ class Mission:
     minimal distance between them. """
     def sample_objective(self):
 
-        self.points = sample_points( self.map, self.sampling, \
+        self.points = sampled_points( self.map, self.sampling, \
                 min_dist =  self.map.length_meter2pix( MIN_SAMPLING_DIST ) )
 
     """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
-        for r in self.team:
-            r.sample_positions( self.map, self.points, self.period )
+        for robot in self.team:
+            robot.sample_positions( self.map, self.points, self.period )
 
     """ Solve / glpk """
     def solve(self):
@@ -68,11 +68,11 @@ class Mission:
     last position of this plan."""
     def update_poses(self, p = None):
         if p:
-            for i,r in enumerate(self.team):
-                r.update_pose(p[i])
+            for i,robot in enumerate(self.team):
+                robot.update_pose(p[i])
         else:
-            for r in self.team:
-                r.update_pose()
+            for robot in self.team:
+                robot.update_pose()
 
     """ Display map, robots, sampled positions and current plans """
     def display_situation(self):
@@ -81,7 +81,7 @@ class Mission:
         global FSIZE
         global COLORS
 
-        c = 0 ; # colors
+        color = 0 ;
 
         fig,ax = plt.subplots( figsize = FSIZE )
         imgplot = plt.imshow(self.map.image)
@@ -92,65 +92,73 @@ class Mission:
 
         # sampled points
         if self.points:
-            x,y = zip(*self.points)
-            mark, = plt.plot(y, x, 'o', c=COLORS[c] )
+            x,y   = zip(*self.points)
+            mark, = plt.plot(y, x, 'o', c=COLORS[color] )
             label = "Observable positions"
 
-            marks.append(mark)
-            labels.append(label)
+            labels.append( label )
+            marks.append( mark )
 
         # Robots positions and paths
-        for r in self.team:
+        for robot in self.team:
             # Each robot has a specific color
-            c += 1
-            if len(COLORS) == c:
-                c = 0
+            color += 1
+            if len(COLORS) == color:
+                color = 0
 
             # starting position
-            mark, = plt.plot(r.pose[1],r.pose[0], '^', c=COLORS[c])
-            label= "Starting position ({})".format(r.name)
+            mark, = plt.plot(robot.pose[1],robot.pose[0], '^', c=COLORS[color])
+            label = "Starting position ({})".format(robot.name)
 
-            if r.points:
+            labels.append( label )
+            marks.append( mark )
+
+            if robot.points:
                 # Accessible positions
-                x,y = zip(*r.points)
+                x,y = zip(*robot.points)
 
-                if not r.paths:
-                    mark, = plt.plot(y, x, 'v', c=COLORS[c])
-                    label = "Accessible positions ({})".format(r.name)
+                if not robot.paths:
+                    mark, = plt.plot(y, x, 'v', c=COLORS[color])
+                    label = "Accessible positions ({})".format(robot.name)
 
-                    marks.append(mark)
-                    labels.append(label)
+                    labels.append( label )
+                    marks.append(  mark )
 
                 # Visibility (sensed areas)
-                for xp,yp in zip(x,y):
-                    sensor_rays = Ellipse((yp,xp),  \
-                        width  = 2*self.map.length_meter2pix( r.srange ), \
-                        height = 2*self.map.length_meter2pix( r.srange ), \
-                        angle = 0, color=COLORS[c], alpha = 0.15)
-                    ax.add_artist(sensor_rays)
+                apply_scale = self.map.length_meter2pix
+                sensor_range = apply_scale( robot.sensor_range )
 
-                marks.append( sensor_rays )
-                labels.append( "Sensing ({})".format(r.name) )
+                for xp,yp in zip(x,y):
+                    sensor_rays = Ellipse( (yp,xp),  \
+                        width  = 2 * sensor_range, \
+                        height = 2 * sensor_range, \
+                        angle = 0, \
+                        color=COLORS[color], \
+                        alpha = 0.15 )
+                    ax.add_artist( sensor_rays )
+
+                labels.append( "Sensing ({})".format(robot.name) )
+                marks.append(  sensor_rays )
 
             # Path links are drawn as staight segments
-            if r.paths:
+            if robot.paths:
                 segments = []
-                for (p,l) in r.paths.iteritems():
+                for (p,l) in robot.paths.iteritems():
                     (x1,y1) = p
                     for (x2,y2) in l:
-                        segments.extend([(y1,y2),(x1,x2),COLORS[c]])
+                        segments.extend([(y1,y2),(x1,x2),COLORS[color]])
                 mark = plt.plot(*segments,linestyle='--')
 
-                marks.append( mark[0] )
-                labels.append( "Path links ({})".format(r.name) )
+                labels.append( "Path links ({})".format(robot.name) )
+                marks.append(  mark[0] )
 
             # Plan -- links are drawn as staight segments
-            if r.plan:
-                x,y = zip(*r.plan)
-                mark = plt.plot(y,x, color = COLORS[c], linewidth = 2.0)
+            if robot.plan:
+                x,y = zip(*robot.plan)
+                mark = plt.plot(y,x, color = COLORS[color], linewidth = 2.0)
 
-                marks.append( mark[0] )
-                labels.append( "Plan({})".format(r.name) )
+                labels.append( "Plan({})".format(robot.name) )
+                marks.append(  mark[0] )
 
         # Caption
         ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
@@ -166,7 +174,7 @@ class Mission:
 
     """ end """
 
-def load_mission(mission_file):
+def loaded_mission(mission_file):
     """ Load the mission file which has a json format.
     Return a python dictionnary equivalent to this json file.
 
@@ -265,9 +273,9 @@ def load_mission(mission_file):
 
     # 'team' is a list of dictionnaries
     for robot in mission['team']:
-        with open(robot['description']) as robot_json:
-            robot.update( json.load( robot_json ) )
-            robot_json.close()
+        with open(robot['description']) as json_robot:
+            robot.update( json.load( json_robot ) )
+            json_robot.close()
 
     if VERBOSE:
         pprint(mission)
