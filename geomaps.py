@@ -157,11 +157,16 @@ def make_weighted_map( pos_map, sensor, u_map, points ) :
 
 """ Sample <n> points in the <geomap>.
 Consider the geomap has a discrete distribution of probability used for the
-sampling."""
-def sample_points( geomap, n, min_dist = 0 ):
+sampling. One can set a minimal distance to respect between the sampled points,
+and constrained them to a given area."""
+def sample_points( geomap, n, min_dist = 0, area = None ):
     points = []
 
-    wrg = WeightedRandomGenerator(geomap.image)
+    if area:
+        [(xmin,ymin),(xmax,ymax)] = area
+        wrg = WeightedRandomGenerator(geomap.image[xmin:xmax,ymin:ymax])
+    else:
+        wrg = WeightedRandomGenerator(geomap.image)
 
     """ Auxiliary function that check the distance of a given point <_p> to a
     list <_points> : if _p is not too close from others sampled points (>dist),
@@ -177,12 +182,18 @@ def sample_points( geomap, n, min_dist = 0 ):
     tstart = time.time()
     while i < n and (time.time() - tstart) < SAMPLING_TIME_OUT :
         idx = wrg()
-        #print time.time() - tstart
         # Beware of the order (height,width) (set empirically...)
-        p= np.unravel_index( idx, (geomap.height, geomap.width ) )
-        if _not_too_close(p, points):
-            points.append(p)
-            i+=1
+        if area:
+            (x,y) = np.unravel_index( idx, (xmax-xmin, ymax-ymin) )
+            p = (x+xmin, y+ymin)
+            if _not_too_close(p, points):
+                points.append(p)
+                i+=1
+        else:
+            p= np.unravel_index( idx, (geomap.height, geomap.width ) )
+            if _not_too_close(p, points):
+                points.append(p)
+                i+=1
 
     #TODO handle this with exceptions
     if (time.time() - tstart) > SAMPLING_TIME_OUT :

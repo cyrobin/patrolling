@@ -53,7 +53,7 @@ class Mission:
     """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
         for r in self.team:
-            r.sample_positions( self.map, self.points )
+            r.sample_positions( self.map, self.points, self.period )
 
     """ Solve / glpk """
     def solve(self):

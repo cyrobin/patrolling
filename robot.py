@@ -49,12 +49,13 @@ class Robot:
         self.plan       = []
         self.old_plans  = []
 
-    """ Sample the accessible positions (= the potential plans).
-    To do so, optionnaly compute a intermediary <wpos_map> weighted by the
-    robot sensor, the utility map <u_map> and the sampled observable points
+    """ Sample the accessible positions (= the search space for potential
+    plans).  To do so, optionnaly compute a intermediary <wpos_map> weighted by
+    the robot sensor, the utility map <u_map> and the sampled observable points
     given as arguments. The points are far apart with a minimal distance
-    proportional to the robot's sensor range"""
-    def sample_positions(self, u_map, points, weight = False):
+    proportional to the robot's sensor range, and are accessible for at most
+    a cost <T>. """
+    def sample_positions(self, u_map, points, T, weight = False):
 
         # Compute the intermediary self.wpos_map : it embodies the utility of
         # the position to be sampled while taking into account the
@@ -67,8 +68,17 @@ class Robot:
         else:
             self.wpos_map = self.pos_map
 
+        # Compute the accessible area to constraints the sampling to useful
+        # positions only (e.g accessible for a cost inferior to <T>)
+        max_dist = self.wpos_map.length_meter2pix( T / self.velocity )
+        xmin = max(0, self.pose[0] - max_dist)
+        ymin = max(0, self.pose[1] - max_dist)
+        xmax = min(self.wpos_map.height, self.pose[0] + max_dist) + 1
+        ymax = min(self.wpos_map.width,  self.pose[1] + max_dist) + 1
+
         self.points = sample_points( self.wpos_map, N_SAMPLED_POS, \
-                min_dist = self.wpos_map.length_meter2pix( 0.5*self.srange ) )
+                min_dist = self.wpos_map.length_meter2pix( 0.5*self.srange ), \
+                area = [(xmin,ymin),(xmax,ymax)] )
 
         # Add the current position (which is obviously valid !)
         self.points.append(self.pose[0:2])
