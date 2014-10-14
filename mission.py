@@ -157,6 +157,7 @@ class Mission:
         #ax.legend(marks,labels, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,\
            #ncol=2, mode="expand", borderaxespad=0.)
         plt.axis([0,self.map.width,self.map.height,0])
+        ax.xaxis.set_label_position('top')
 
         plt.show()
         print "Display done."

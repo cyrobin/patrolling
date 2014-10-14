@@ -145,6 +145,7 @@ class Robot:
         # Caption
         ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
         plt.axis([0,self.wpos_map.width,self.wpos_map.height,0])
+        ax.xaxis.set_label_position('top')
 
         plt.show()
 
