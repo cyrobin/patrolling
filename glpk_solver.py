@@ -25,7 +25,17 @@ class GLPKSolver:
         self.mission = mission
         self.cost_penalty = COST_PENALTY
 
-    """ Solve the problem as a perception-based TSP. """
+    """ Solve the problem as a position-based multi-TSP. """
+    def solve_position_tsp(self):
+
+        # Utility = do not take sensor model into account
+        # Solely consider the current position utility
+        def computed_utility( robot, position):
+            return self.mission.map.image[position]
+
+        self._solve_tsp(computed_utility)
+
+    """ Solve the problem as a perception-based multi-TSP. """
     def solve_perception_tsp(self):
 
         # Utility = weighted sum of observed areas

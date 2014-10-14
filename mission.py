@@ -56,9 +56,21 @@ class Mission:
         for robot in self.team:
             robot.sample_positions( self.map, self.points, self.period )
 
-    """ Solve / glpk """
-    def solve(self):
-        self.solver.solve_perception_tsp()
+    """ Solve (using glpk) """
+    def solve(self, milp_formulation = 'Perception-based TSP'):
+
+        available_milp_formulation = {
+            'Perception-based TSP': self.solver.solve_perception_tsp,
+            'Position-based TSP'  : self.solver.solve_position_tsp,
+        }
+
+        try:
+            solver = available_milp_formulation[ milp_formulation ]
+        except KeyError:
+            print "!ERROR! '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
+        else:
+            solver()
+
 
     # TODO Update map based on sensing
 

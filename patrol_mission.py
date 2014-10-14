@@ -24,6 +24,7 @@ if __name__ == "__main__":
     print "Solving..."
     with Timer('Solving'):
         mission.solve()
+        #mission.solve('Position-based TSP')
 
     print "Displaying..."
     for robot in mission.team:
