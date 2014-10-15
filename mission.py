@@ -98,8 +98,9 @@ class Mission:
             self.solve()
 
         if DISPLAY:
-            for robot in self.team:
-                robot.display_weighted_map()
+            if VERBOSE:
+                for robot in self.team:
+                    robot.display_weighted_map()
             self.display_situation()
 
     """ Update the mission according to current plan (utility map and robots's
