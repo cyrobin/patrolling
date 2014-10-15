@@ -43,6 +43,16 @@ class Geomap:
         if VERBOSE:
             print "Image is {}x{}".format(self.width,self.height)
 
+    """ Check the scale, origin and size coherence between two geomaps.
+    If it failt, throw an exception (ValueError)."""
+    def check_coherence(self, geomap):
+        if   self.tf              != geomap.tf              \
+          or self.width           != geomap.width           \
+          or self.height          != geomap.height          \
+          or self.custom_x_origin != geomap.custom_x_origin \
+          or self.custom_y_origin != geomap.custom_y_origin :
+              raise ValueError("Geomaps does not correspond to each other.")
+
     """ Return the distance beween two 2D points.
     Currently use the euclidian distance. Keep the length unit. """
     def dist( self, p, q ):
@@ -126,6 +136,8 @@ arguments."""
 # FIXME ensure that all geomaps are concistant ??
 # (or deal with it ?!)
 def built_weighted_map( pos_map, sensor, u_map, points ) :
+
+    pos_map.check_coherence(u_map)
 
     # Copy pos_map
     weight_map = copy(pos_map)
