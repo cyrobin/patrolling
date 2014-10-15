@@ -22,3 +22,6 @@ MIN_SAMPLING_DIST = 5 # see mission.py
 COST_PENALTY = 0.0001
 SOLVER_TIME_OUT = 300000 # 5min (300K ms)
 
+# Utility growth rate
+UTILITY_GROWTH_BY_PERIOD = 20
+

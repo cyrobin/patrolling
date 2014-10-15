@@ -13,25 +13,34 @@ from timer import Timer
 
 
 if __name__ == "__main__":
+
     with Timer('Loading mission file'):
         json_mission = loaded_mission(argv[1])
         mission =  Mission (  json_mission )
-    with Timer('Sampling observable points'):
-        mission.sample_objective()
-    with Timer('Sampling positions'):
-        mission.sample_all_positions()
 
-    print "Solving..."
-    with Timer('Solving'):
-        mission.solve()
-        #mission.solve('Position-based TSP')
+    #with Timer('Sampling observable points'):
+        #mission.sample_objective()
+    #with Timer('Sampling positions'):
+        #mission.sample_all_positions()
 
-    print "Displaying..."
-    for robot in mission.team:
-        robot.display_weighted_map()
-    mission.display_situation()
+    #print "Solving..."
+    #with Timer('Solving'):
+        #mission.solve()
+        ##mission.solve('Position-based TSP')
 
-    print "Updating pose:"
-    mission.update_poses()
+    #print "Displaying..."
+    #for robot in mission.team:
+        #robot.display_weighted_map()
+    #mission.display_situation()
+
+    #print "Updating poses and map"
+    #mission.update_poses()
+    #mission.update_map()
+
+
+    print "Loop once !"
+    mission.loop_once(True)
+    mission.loop_once(True)
+    mission.loop_once(True)
 
     print "Done."

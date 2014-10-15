@@ -77,6 +77,7 @@ class Mission:
 
         with Timer('Updating poses and utility map'):
             self.update_poses()
+            self.update_map()
 
         with Timer('Sampling observable points'):
             self.sample_objective()
@@ -101,6 +102,11 @@ class Mission:
         else:
             for robot in self.team:
                 robot.update_pose()
+
+    """ Update the utility map according to robots'plans and natural growth due
+    to idleness (= absence of observation for a while)"""
+    def update_map(self):
+        self.map.update_utility( self.team )
 
     """ Display map, robots, sampled positions and current plans """
     def display_situation(self):
