@@ -42,6 +42,8 @@ class Mission:
 
         self.solver = GLPKSolver(self)
 
+        self.loop_step = 0
+
     """ Sample the observable positions (= the objective).
     Assume that the map is a distribution of probabilily,
     e.g the value are the utility. The sampled points are far apart, with a
@@ -74,6 +76,9 @@ class Mission:
 
     """ Perform a whole planning loop. """
     def loop_once(self, DISPLAY = False):
+
+        self.loop_step += 1
+        print "Patrolling -- loop #{}".format(self.loop_step)
 
         with Timer('Updating poses and utility map'):
             self.update_poses()
