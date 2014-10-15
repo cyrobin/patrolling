@@ -90,6 +90,16 @@ class Geomap:
 class UtilityMap(Geomap):
     'A Geomap that specifically embodies utility'
 
+    def __init__(self, geofile):
+        Geomap.__init__(self,geofile)
+
+        # Use int32 instead of uint8 as utility can grow arbitrarily high
+        self.image = np.uint32(self.image)
+
+        # Normalization at init (max = 100)
+        max_utility = np.amax(self.image)
+        self.image = 100 * self.image / max_utility
+
     """ When the geomap embodies utility, update the map value using a sensor
     model and a set of observation (view point)."""
     def update_utility(self, team):
@@ -101,11 +111,8 @@ class UtilityMap(Geomap):
                       for robot in team for viewpoint in robot.plan )
                 except ValueError: # when no plan was computed before
                     best_view = 0
-                self.image[ observable ] = min( 255, \
-                        utility * ( 1 - best_view ) + UTILITY_GROWTH_BY_PERIOD )
-                # TODO have a specific geomap class for utility ?
-                # TODO do not limit utility to 255 ? (use newimage = np.uint64(image) )
 
+                self.image[ observable ] = utility * ( 1 - best_view ) + UTILITY_GROWTH_BY_PERIOD
 
 """ Return the euclidian distance beween two 2D points.
 Keep the length unit. """
