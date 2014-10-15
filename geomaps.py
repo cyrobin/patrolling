@@ -66,9 +66,9 @@ class Geomap:
             w = min( int(ymax-ymin), self.width )
 
         else:
-            [(xmin,ymin),(xmax,ymax)] = [(None,None),(None,None)]
             h = self.height
             w = self.width
+            [(xmin,ymin),(xmax,ymax)] = [(0,0),(h+1,w+1)]
 
         # Bounded the area to the current map
         xmin = max( 0, xmin )
