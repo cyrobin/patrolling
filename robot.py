@@ -20,7 +20,8 @@ class Robot:
 
         self.name           = robot[u'name']
         self.descrition     = robot[u'description']
-        self.map_file       = robot[u'accessibility_map']
+        self.accessibility_map_file = robot[u'accessibility_map']
+        self.visibility_map_file    = robot[u'visibility_map']
 
         self.mass           = robot[u'platform'][u'mass']
         self.radius         = robot[u'platform'][u'radius']
@@ -37,8 +38,8 @@ class Robot:
                               robot[u'start_pose'][u'z'],
                               robot[u'start_pose'][u't'] )
 
-        self.accessibility_map = AccessibilityMap(self.map_file)
-        self.visibility_map    = VisibilityMap(self.map_file)
+        self.accessibility_map = AccessibilityMap(self.accessibility_map_file)
+        self.visibility_map    = VisibilityMap(self.visibility_map_file)
 
         self.sensor = self.visibility_map.built_sensor_model(
                 self.sensor_name,
