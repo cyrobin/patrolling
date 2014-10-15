@@ -78,7 +78,7 @@ class Robot:
         xmax = self.pose[0] + max_dist + 1
         ymax = self.pose[1] + max_dist + 1
 
-        self.points = sampled_points( self.weighted_pos_map, N_SAMPLED_POS, \
+        self.points = self.weighted_pos_map.sampled_points( N_SAMPLED_POS, \
                 min_dist = apply_scale( 0.5*self.sensor_range ), \
                 area = [(xmin,ymin),(xmax,ymax)] )
 

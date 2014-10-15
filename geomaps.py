@@ -53,6 +53,65 @@ class Geomap:
           or self.custom_y_origin != geomap.custom_y_origin :
               raise ValueError("Geomaps does not correspond to each other.")
 
+    """ Sample <n> points in the <geomap>.
+    Consider the geomap has a discrete distribution of probability used for the
+    sampling. One can set a minimal distance to respect between the sampled points,
+    and constrained them to a given area."""
+    def sampled_points( self, n, min_dist = 0, area = None ):
+        points = []
+
+        if area:
+            [(xmin,ymin),(xmax,ymax)] = area
+
+            # Bounded the area to the current map
+            xmin = max( 0, xmin )
+            ymin = max( 0, ymin )
+            xmax = min(self.height + 1, xmax )
+            ymax = min(self.width  + 1, ymax )
+
+            h = min( int(xmax-xmin), self.height)
+            w = min( int(ymax-ymin), self.width )
+
+            wrg = WeightedRandomGenerator(self.image[xmin:xmax,ymin:ymax])
+        else:
+            wrg = WeightedRandomGenerator(self.image)
+
+        """ Auxiliary function that check the distance of a given point <_p> to a
+        list <_points> : if _p is not too close from others sampled points (>dist),
+        then the function return True (ie one can keep <_p> as a valid sample> """
+        def _not_too_close (_p, _points):
+            for q in points:
+                if euclidian_distance(_p,q) < min_dist:
+                    return False
+            return True
+
+        i = 0
+        t_start = time.time()
+        while i < n and (time.time() - t_start) < SAMPLING_TIME_OUT :
+            idx = wrg()
+            # Beware of the order (height,width) (set empirically...)
+            if area:
+                try:
+                    (x,y) = np.unravel_index( idx, (h, w) )
+                except ValueError:
+                    continue
+                p = (x+xmin, y+ymin)
+                if _not_too_close(p, points):
+                    points.append(p)
+                    i+=1
+            else:
+                p= np.unravel_index( idx, (self.height, self.width ) )
+                if _not_too_close(p, points):
+                    points.append(p)
+                    i+=1
+
+        #TODO handle this with exceptions
+        if (time.time() - t_start) > SAMPLING_TIME_OUT :
+            print "!WARNING! Sampling timed out ({} / {} points sampled)".format( \
+                    len(points), n )
+
+        return points
+
     """ Return the distance beween two 2D points.
     Currently use the euclidian distance. Keep the length unit. """
     def dist( self, p, q ):
@@ -131,65 +190,6 @@ def built_weighted_map( pos_map, sensor, u_map, points ) :
     weight_map.image = (255 * wimage / wimage.max() ).astype(np.uint8, copy=False)
 
     return weight_map
-
-""" Sample <n> points in the <geomap>.
-Consider the geomap has a discrete distribution of probability used for the
-sampling. One can set a minimal distance to respect between the sampled points,
-and constrained them to a given area."""
-def sampled_points( geomap, n, min_dist = 0, area = None ):
-    points = []
-
-    if area:
-        [(xmin,ymin),(xmax,ymax)] = area
-
-        # Bounded the area to the current map
-        xmin = max( 0, xmin )
-        ymin = max( 0, ymin )
-        xmax = min(geomap.height + 1, xmax )
-        ymax = min(geomap.width  + 1, ymax )
-
-        h = min( int(xmax-xmin), geomap.height)
-        w = min( int(ymax-ymin), geomap.width )
-
-        wrg = WeightedRandomGenerator(geomap.image[xmin:xmax,ymin:ymax])
-    else:
-        wrg = WeightedRandomGenerator(geomap.image)
-
-    """ Auxiliary function that check the distance of a given point <_p> to a
-    list <_points> : if _p is not too close from others sampled points (>dist),
-    then the function return True (ie one can keep <_p> as a valid sample> """
-    def _not_too_close (_p, _points):
-        for q in points:
-            if euclidian_distance(_p,q) < min_dist:
-                return False
-        return True
-
-    i = 0
-    t_start = time.time()
-    while i < n and (time.time() - t_start) < SAMPLING_TIME_OUT :
-        idx = wrg()
-        # Beware of the order (height,width) (set empirically...)
-        if area:
-            try:
-                (x,y) = np.unravel_index( idx, (h, w) )
-            except ValueError:
-                continue
-            p = (x+xmin, y+ymin)
-            if _not_too_close(p, points):
-                points.append(p)
-                i+=1
-        else:
-            p= np.unravel_index( idx, (geomap.height, geomap.width ) )
-            if _not_too_close(p, points):
-                points.append(p)
-                i+=1
-
-    #TODO handle this with exceptions
-    if (time.time() - t_start) > SAMPLING_TIME_OUT :
-        print "!WARNING! Sampling timed out ({} / {} points sampled)".format( \
-                len(points), n )
-
-    return points
 
 """ Return the existing connections between the <points> in the <geomap>.
 <paths> refers to the positions in self.points and may be seen as a sparse

@@ -52,7 +52,7 @@ class Mission:
     def sample_objective(self):
         apply_scale = self.map.length_meter2pix
 
-        self.points = sampled_points( self.map, self.sampling, \
+        self.points = self.map.sampled_points( self.sampling, \
                 min_dist = apply_scale( MIN_SAMPLING_DIST ) )
 
     """ Sample accessible positions each robot of the team """
