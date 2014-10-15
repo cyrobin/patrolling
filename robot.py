@@ -7,8 +7,8 @@ TODO Descriptif
 import json
 import matplotlib.pyplot as plt
 import numpy as np
-from geomaps import *
 from accessibility_map import AccessibilityMap
+from visibility_map import VisibilityMap
 
 from constant import *
 
@@ -18,32 +18,32 @@ class Robot:
     """ Init a robot upon a descriptive dictionary <robot> """
     def __init__(self, robot):
 
-        self.name        = robot[u'name']
-        self.descrition  = robot[u'description']
-        self.map_file    = robot[u'accessibility_map']
+        self.name           = robot[u'name']
+        self.descrition     = robot[u'description']
+        self.map_file       = robot[u'accessibility_map']
 
-        self.mass        = robot[u'platform'][u'mass']
-        self.radius      = robot[u'platform'][u'radius']
-        self.velocity    = robot[u'platform'][u'velocity']
+        self.mass           = robot[u'platform'][u'mass']
+        self.radius         = robot[u'platform'][u'radius']
+        self.velocity       = robot[u'platform'][u'velocity']
 
-        self.sensor_name       = robot[u'sensor'][u'name']
-        self.sensor_quality    = robot[u'sensor'][u'quality']
-        self.sensor_range      = robot[u'sensor'][u'range']
-        self.sensor_fov         = robot[u'sensor'][u'fov']
-        self.sensor_pose = robot[u'sensor'][u'pose']
+        self.sensor_name    = robot[u'sensor'][u'name']
+        self.sensor_quality = robot[u'sensor'][u'quality']
+        self.sensor_range   = robot[u'sensor'][u'range']
+        self.sensor_fov     = robot[u'sensor'][u'fov']
+        self.sensor_pose    = robot[u'sensor'][u'pose']
 
-        self.pose         = (robot[u'start_pose'][u'x'], \
-                            robot[u'start_pose'][u'y'], \
-                            robot[u'start_pose'][u'z'], \
-                            robot[u'start_pose'][u't'] )
+        self.pose           =(robot[u'start_pose'][u'x'],
+                              robot[u'start_pose'][u'y'],
+                              robot[u'start_pose'][u'z'],
+                              robot[u'start_pose'][u't'] )
 
-        self.accessibility_map     = AccessibilityMap(self.map_file)
+        self.accessibility_map = AccessibilityMap(self.map_file)
+        self.visibility_map    = VisibilityMap(self.map_file)
 
-        # FIXME use a different geomap for the sensor
-        self.sensor = built_sensor_function( self.accessibility_map, \
-                                            self.sensor_name,
-                                            self.sensor_quality,
-                                            self.sensor_range)
+        self.sensor = self.visibility_map.built_sensor_model(
+                self.sensor_name,
+                self.sensor_quality,
+                self.sensor_range)
 
         self.points     = []
         self.paths      = {}

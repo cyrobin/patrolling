@@ -6,7 +6,7 @@ TODO Descriptif
 
 import gdal
 import numpy as np
-from math import sqrt,log
+from math import sqrt
 import time
 
 from wrg import WeightedRandomGenerator
@@ -154,70 +154,4 @@ class Geomap:
     """ Translate meter length into pixel length (y axis)"""
     def length_meter2pix_y(self, d):
         return d / abs(self.scale_y)
-
-""" This function return an appropriate sensor function defined by its name,
-its coefficient, its range, and the map in use. A sensor function takes as
-argument  the sensor position and the position of the sensed object / area,
-to return the quality of the observation, which is a float between 0 and 1, 1
-being perfectly observed."""
-def built_sensor_function(geomap, name, coef, sensor_range):
-    """ Here follows sensor functions of various quality. """
-    def linear_sensor(coef):
-        def _function(p,q):
-            d = geomap.euclidian_distance_pix2meters(p,q)
-            if d == 0:
-                return 1
-            elif d > sensor_range :
-                return 0
-            else:
-                return min( 1, coef / d )
-        return  _function
-
-    def square_sensor(coef):
-        def _function(p,q):
-            d = geomap.euclidian_distance_pix2meters(p,q)
-            if d == 0:
-                return 1
-            elif d > sensor_range :
-                return 0
-            else:
-                return min( 1, coef / sqrt(d) )
-        return  _function
-
-    def log_sensor(coef):
-        def _function(p,q):
-            d = geomap.euclidian_distance_pix2meters(p,q)
-            if d <= 1:
-                return 1
-            elif d > sensor_range :
-                return 0
-            else:
-                return min( 1, coef / log(d) )
-        return  _function
-
-    def quadratic_sensor(coef):
-        def _function(p,q):
-            d = geomap.euclidian_distance_pix2meters(p,q)
-            if d == 0:
-                return 1
-            elif d > sensor_range :
-                return 0
-            else:
-                return min( 1, coef / d**2 )
-        return  _function
-
-    """ This dictionnary lists available sensors function. """
-    available_sensor_models = { \
-            'linear'    : linear_sensor,    \
-            'square'    : square_sensor,    \
-            'log'       : log_sensor,       \
-            'quadratic' : quadratic_sensor, \
-            }
-
-    try:
-        sensor_model = available_sensor_models[name](coef)
-    except KeyError:
-        raise ValueError('Unknown sensor name. Please choose another model.')
-
-    return sensor_model
 
