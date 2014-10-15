@@ -114,8 +114,9 @@ class Robot:
 
         # Deal with (no longer valid) past path and sampled positions
         self.old_plans.append(self.plan)
-        self.plans = []
+        self.plan   = []
         self.points = []
+        self.paths  = []
 
         if VERBOSE:
             print "{} new pose is {}".format(self.name,self.pose)
