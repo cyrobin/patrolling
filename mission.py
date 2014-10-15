@@ -29,11 +29,11 @@ class Mission:
     def __init__(self, _mission):
 
         self.mission    = _mission
-        self.map_file   = self.mission[u'map']
         self.sampling   = self.mission[u'sampling']
         self.period     = self.mission[u'period']
+        self.utility_map_file = self.mission[u'map']
 
-        self.map        = UtilityMap(self.map_file)
+        self.utility_map = UtilityMap( self.utility_map_file )
 
         self.team = []
         for robot in self.mission[u'team']:
@@ -51,13 +51,13 @@ class Mission:
     minimal distance (in meters) between them. """
     def sample_objective(self):
 
-        self.points = self.map.sampled_points( self.sampling, \
+        self.points = self.utility_map.sampled_points( self.sampling, \
                 min_dist = MIN_SAMPLING_DIST )
 
     """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
         for robot in self.team:
-            robot.sample_positions( self.map, self.points, self.period )
+            robot.sample_positions( self.utility_map, self.points, self.period )
 
     """ Solve (using glpk) """
     def solve(self, milp_formulation = 'Perception-based TSP'):
@@ -123,7 +123,7 @@ class Mission:
     """ Update the utility map according to robots'plans and natural growth due
     to idleness (= absence of observation for a while)"""
     def update_map(self):
-        self.map.update_utility( self.team )
+        self.utility_map.update_utility( self.team )
 
     """ Display map, robots, sampled positions and current plans """
     def display_situation(self):
@@ -135,7 +135,7 @@ class Mission:
         color = 0 ;
 
         fig,ax = plt.subplots( figsize = FSIZE )
-        imgplot = plt.imshow(self.map.image)
+        imgplot = plt.imshow(self.utility_map.image)
         imgplot.set_cmap('gray')
         plt.colorbar() #  Utility
 
@@ -152,6 +152,7 @@ class Mission:
 
         # Robots positions and paths
         for robot in self.team:
+
             # Each robot has a specific color
             color += 1
             if len(COLORS) == color:
@@ -176,8 +177,8 @@ class Mission:
                     marks.append(  mark )
 
                 # Visibility (sensed areas)
-                sensor_x_range = self.map.length_meter2pix_x( robot.sensor_range )
-                sensor_y_range = self.map.length_meter2pix_y( robot.sensor_range )
+                sensor_x_range = self.utility_map.length_meter2pix_x( robot.sensor_range )
+                sensor_y_range = self.utility_map.length_meter2pix_y( robot.sensor_range )
 
                 for xp,yp in zip(x,y):
                     sensor_rays = Ellipse( (yp,xp),  \
@@ -226,7 +227,7 @@ class Mission:
         ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
         #ax.legend(marks,labels, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,\
            #ncol=2, mode="expand", borderaxespad=0.)
-        plt.axis([0,self.map.width,self.map.height,0])
+        plt.axis([0,self.utility_map.width,self.utility_map.height,0])
         ax.xaxis.set_label_position('top')
 
         plt.show()

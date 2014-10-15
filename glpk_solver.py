@@ -31,7 +31,7 @@ class GLPKSolver:
         # Utility = do not take sensor model into account
         # Solely consider the current position utility
         def computed_utility( robot, position):
-            return self.mission.map.image[position]
+            return self.mission.utility_map.image[position]
 
         self._solve_tsp(computed_utility)
 
@@ -40,7 +40,7 @@ class GLPKSolver:
 
         # Utility = weighted sum of observed areas
         def computed_utility( robot, position):
-            return sum( self.mission.map.image[observed] * \
+            return sum( self.mission.utility_map.image[observed] * \
                     robot.sensor(position,observed) \
                     for observed in self.mission.points )
 
