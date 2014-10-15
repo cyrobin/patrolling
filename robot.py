@@ -69,11 +69,9 @@ class Robot:
         else:
             self.weighted_accessibility_map = self.accessibility_map
 
-        apply_scale = self.weighted_accessibility_map.length_meter2pix
-
         # Compute the accessible area to constraints the sampling to useful
         # positions only (e.g accessible for a cost inferior to <max_cost>)
-        max_dist = apply_scale( max_cost / self.velocity )
+        max_dist = max_cost / self.velocity
         xmin = self.pose[0] - max_dist
         ymin = self.pose[1] - max_dist
         xmax = self.pose[0] + max_dist + 1
@@ -81,7 +79,7 @@ class Robot:
 
         self.points = self.weighted_accessibility_map.sampled_points( \
                 N_SAMPLED_POS, \
-                min_dist = apply_scale( 0.5*self.sensor_range ), \
+                min_dist = 0.5*self.sensor_range, \
                 area = [(xmin,ymin),(xmax,ymax)] )
 
         # Add the current position (which is obviously valid !)
@@ -96,8 +94,7 @@ class Robot:
     """ Return the cost (time) for a robot to travel from p to q.
     Use the euclidian distance and the speed of the robot. """
     def cost(self,p,q):
-        apply_scale = self.accessibility_map.length_pix2meter
-        d = apply_scale( self.accessibility_map.dist(p,q) )
+        d = self.accessibility_map.euclidian_distance_pix2meters(p,q)
         return d / self.velocity
 
     """ Update the robot pos according to <p> : if no <p> is provided, then use

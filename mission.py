@@ -48,12 +48,11 @@ class Mission:
     """ Sample the observable positions (= the objective).
     Assume that the map is a distribution of probabilily,
     e.g the value are the utility. The sampled points are far apart, with a
-    minimal distance between them. """
+    minimal distance (in meters) between them. """
     def sample_objective(self):
-        apply_scale = self.map.length_meter2pix
 
         self.points = self.map.sampled_points( self.sampling, \
-                min_dist = apply_scale( MIN_SAMPLING_DIST ) )
+                min_dist = MIN_SAMPLING_DIST )
 
     """ Sample accessible positions each robot of the team """
     def sample_all_positions(self):
@@ -177,16 +176,16 @@ class Mission:
                     marks.append(  mark )
 
                 # Visibility (sensed areas)
-                apply_scale = self.map.length_meter2pix
-                sensor_range = apply_scale( robot.sensor_range )
+                sensor_x_range = self.map.length_meter2pix_x( robot.sensor_range )
+                sensor_y_range = self.map.length_meter2pix_y( robot.sensor_range )
 
                 for xp,yp in zip(x,y):
                     sensor_rays = Ellipse( (yp,xp),  \
-                        width  = 2 * sensor_range, \
-                        height = 2 * sensor_range, \
-                        angle = 0, \
-                        color=COLORS[color], \
-                        alpha = 0.15 )
+                        width  = 2 * sensor_x_range, \
+                        height = 2 * sensor_y_range, \
+                        angle  = 0, \
+                        color  = COLORS[color], \
+                        alpha  = 0.15 )
                     ax.add_artist( sensor_rays )
 
                 labels.append( "Sensing ({})".format(robot.name) )

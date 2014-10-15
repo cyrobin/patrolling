@@ -54,67 +54,75 @@ class Geomap:
 
     """ Sample <n> points in the <geomap>.
     Consider the geomap has a discrete distribution of probability used for the
-    sampling. One can set a minimal distance to respect between the sampled points,
-    and constrained them to a given area."""
+    sampling. One can set a minimal distance (in meters!) to respect between
+    the sampled points, and constrained them to a given bounded area. There is
+    a time out for the sampling, which may thus return an incomplete result."""
     def sampled_points( self, n, min_dist = 0, area = None ):
         points = []
 
         if area:
             [(xmin,ymin),(xmax,ymax)] = area
-
-            # Bounded the area to the current map
-            xmin = max( 0, xmin )
-            ymin = max( 0, ymin )
-            xmax = min(self.height + 1, xmax )
-            ymax = min(self.width  + 1, ymax )
-
             h = min( int(xmax-xmin), self.height)
             w = min( int(ymax-ymin), self.width )
 
-            wrg = WeightedRandomGenerator(self.image[xmin:xmax,ymin:ymax])
         else:
-            wrg = WeightedRandomGenerator(self.image)
+            [(xmin,ymin),(xmax,ymax)] = [(None,None),(None,None)]
+            h = self.height
+            w = self.width
 
-        """ Auxiliary function that check the distance of a given point <_p> to a
-        list <_points> : if _p is not too close from others sampled points (>dist),
-        then the function return True (ie one can keep <_p> as a valid sample> """
+        # Bounded the area to the current map
+        xmin = max( 0, xmin )
+        ymin = max( 0, ymin )
+        xmax = min(self.height + 1, xmax )
+        ymax = min(self.width  + 1, ymax )
+
+        wrg = WeightedRandomGenerator(self.image[xmin:xmax,ymin:ymax])
+
+        """ Auxiliary function that check the distance of a given point <_p> to
+        a list <_points> : if _p is not too close from others sampled points
+        (>dist), then the function return True (ie one can keep <_p> as a valid
+        sample> """
         def _not_too_close (_p, _points):
             for q in points:
-                if euclidian_distance(_p,q) < min_dist:
+                if self.euclidian_distance_pix2meters(_p,q) < min_dist:
                     return False
             return True
 
-        i = 0
-        t_start = time.time()
+        i = 0 ; t_start = time.time()
         while i < n and (time.time() - t_start) < SAMPLING_TIME_OUT :
-            idx = wrg()
-            # Beware of the order (height,width) (set empirically...)
-            if area:
-                try:
-                    (x,y) = np.unravel_index( idx, (h, w) )
-                except ValueError:
-                    continue
-                p = (x+xmin, y+ymin)
-                if _not_too_close(p, points):
-                    points.append(p)
-                    i+=1
-            else:
-                p= np.unravel_index( idx, (self.height, self.width ) )
-                if _not_too_close(p, points):
-                    points.append(p)
-                    i+=1
 
-        #TODO handle this with exceptions
+            idx = wrg()
+
+            # Beware of the order (height,width) (set empirically...)
+            try:
+                (x,y) = np.unravel_index( idx, (h, w) )
+            except ValueError:
+                continue
+
+            if area:
+                p = (x+xmin, y+ymin)
+            else:
+                p = (x,y)
+
+            if _not_too_close(p, points):
+                points.append(p) ; i+=1
+
         if (time.time() - t_start) > SAMPLING_TIME_OUT :
             print "!WARNING! Sampling timed out ({} / {} points sampled)".format( \
                     len(points), n )
 
         return points
 
-    """ Return the distance beween two 2D points.
-    Currently use the euclidian distance. Keep the length unit. """
-    def dist( self, p, q ):
-        return euclidian_distance(p,q)
+    """ Return the euclidian distance beween two pixels. """
+    def euclidian_distance_pixels( self, (x1,y1), (x2,y2) ):
+        return sqrt( ( (x1-x2) )**2 \
+                   + ( (y1-y2) )**2 )
+
+    """ Return the euclidian distance in meters beween two 2D points given as
+    pixels. """
+    def euclidian_distance_pix2meters( self, (x1,y1), (x2,y2) ):
+        return sqrt( ( (x1-x2) * self.scale_x )**2 \
+                   + ( (y1-y2) * self.scale_y )**2 )
 
     """ Translate pixel coordinates into utm """
     def point_pix2utm(self, x, y):
@@ -127,39 +135,25 @@ class Geomap:
         return [p[0] - self.custom_x_origin,
                 p[1] - self.custom_y_origin]
 
-    """ Transform pixels coordinates into one-liner index """
-    #def point_pix2idx(self, x, y):
-        #return y*self.width + x
-        #TODO use flat / ravel instead ? zith coords ?
-        #return image.ravel(
-
     """ Transform one-liner index into image pixels coordinates """
     def point_idx2pix( self, idx ):
         return np.unravel_index( idx, (self.height,self.width) )
 
-    """ Translate pixel length into meters length """
-    def length_pix2meter(self, d):
-        if ( abs(self.scale_x) == abs(self.scale_y) ):
-            return d * abs(self.scale_x)
-        else:
-            print self.scale_x
-            print self.scale_y
-            raise RuntimeError("Trying to scale a map that has different axis scales")
+    """ Translate pixel length into meters length (x axis)"""
+    def length_pix2meter_x(self, d):
+        return d * abs(self.scale_x)
 
-    """ Translate meters length into pixel length """
-    def length_meter2pix(self, d):
-        if (abs(self.scale_x) == abs(self.scale_y) ):
-            return d / abs(self.scale_x)
-        else:
-            print self.scale_x
-            print self.scale_y
-            raise RuntimeError("Trying to scale a map that has different axis scales")
+    """ Translate pixel length into meters length (y axis)"""
+    def length_pix2meter_y(self, d):
+        return d * abs(self.scale_y)
 
-""" Return the euclidian distance beween two 2D points.
-Keep the length unit. """
-def euclidian_distance( (x1,y1), (x2,y2) ):
-    return sqrt( ( (x1-x2) )**2 \
-               + ( (y1-y2) )**2 )
+    """ Translate meter length into pixel length (x axis)"""
+    def length_meter2pix_x(self, d):
+        return d / abs(self.scale_x)
+
+    """ Translate meter length into pixel length (y axis)"""
+    def length_meter2pix_y(self, d):
+        return d / abs(self.scale_y)
 
 """ This function return an appropriate sensor function defined by its name,
 its coefficient, its range, and the map in use. A sensor function takes as
@@ -170,10 +164,10 @@ def built_sensor_function(geomap, name, coef, sensor_range):
     """ Here follows sensor functions of various quality. """
     def linear_sensor(coef):
         def _function(p,q):
-            d = euclidian_distance(p,q)
+            d = geomap.euclidian_distance_pix2meters(p,q)
             if d == 0:
                 return 1
-            elif d > geomap.length_meter2pix( sensor_range ):
+            elif d > sensor_range :
                 return 0
             else:
                 return min( 1, coef / d )
@@ -181,10 +175,10 @@ def built_sensor_function(geomap, name, coef, sensor_range):
 
     def square_sensor(coef):
         def _function(p,q):
-            d = euclidian_distance(p,q)
+            d = geomap.euclidian_distance_pix2meters(p,q)
             if d == 0:
                 return 1
-            elif d > geomap.length_meter2pix( sensor_range ):
+            elif d > sensor_range :
                 return 0
             else:
                 return min( 1, coef / sqrt(d) )
@@ -192,10 +186,10 @@ def built_sensor_function(geomap, name, coef, sensor_range):
 
     def log_sensor(coef):
         def _function(p,q):
-            d = euclidian_distance(p,q)
+            d = geomap.euclidian_distance_pix2meters(p,q)
             if d <= 1:
                 return 1
-            elif d > geomap.length_meter2pix( sensor_range ):
+            elif d > sensor_range :
                 return 0
             else:
                 return min( 1, coef / log(d) )
@@ -203,21 +197,21 @@ def built_sensor_function(geomap, name, coef, sensor_range):
 
     def quadratic_sensor(coef):
         def _function(p,q):
-            d = euclidian_distance(p,q)
+            d = geomap.euclidian_distance_pix2meters(p,q)
             if d == 0:
                 return 1
-            elif d > geomap.length_meter2pix( sensor_range ):
+            elif d > sensor_range :
                 return 0
             else:
                 return min( 1, coef / d**2 )
         return  _function
 
     """ This dictionnary lists available sensors function. """
-    available_sensor_models = {\
-            'linear': linear_sensor, \
-            'square': square_sensor, \
-            'log': log_sensor, \
-            'quadratic': quadratic_sensor, \
+    available_sensor_models = { \
+            'linear'    : linear_sensor,    \
+            'square'    : square_sensor,    \
+            'log'       : log_sensor,       \
+            'quadratic' : quadratic_sensor, \
             }
 
     try:
