@@ -41,6 +41,8 @@ class Robot:
         self.accessibility_map = AccessibilityMap(self.accessibility_map_file)
         self.visibility_map    = VisibilityMap(self.visibility_map_file)
 
+        self.accessibility_map.check_coherence( self.visibility_map )
+
         self.sensor = self.visibility_map.built_sensor_model(
                 self.sensor_name,
                 self.sensor_quality,

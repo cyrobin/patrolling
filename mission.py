@@ -39,6 +39,10 @@ class Mission:
         for robot in self.mission[u'team']:
             self.team.append( Robot( robot ) )
 
+        for robot in self.team:
+            self.utility_map.check_coherence( robot.accessibility_map )
+            self.utility_map.check_coherence( robot.visibility_map )
+
         self.points = [] # the sampled points to be observed
 
         self.solver = GLPKSolver(self)
