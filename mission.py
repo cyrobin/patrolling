@@ -129,6 +129,11 @@ class Mission:
     def update_map(self):
         self.utility_map.update_utility( self.team )
 
+    """ Display various metrics """
+    # TODO TO BE COMPLETED (data about robots ?!)
+    def print_metrics(self):
+        self.utility_map.print_metrics()
+
     """ Display map, robots, sampled positions and current plans """
     def display_situation(self):
         # Beware of the axis-inversion (y,x) spotted empirically

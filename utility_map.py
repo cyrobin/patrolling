@@ -22,7 +22,10 @@ class UtilityMap(Geomap):
         max_utility = np.amax(self.image)
         self.image = 100 * self.image / max_utility
 
-        self.max_utility_over_time = [100]
+        # Performance metrics
+        self.past_max_utilities = [100]
+        sum_utility = np.sum( self.image, dtype = np.uint64 )
+        self.past_sum_utilities = [ sum_utility ]
 
     """ When the geomap embodies utility, update the map value using a sensor
     model and a set of observation (view point)."""
@@ -38,7 +41,21 @@ class UtilityMap(Geomap):
 
                 self.image[ observable ] = utility * ( 1 - best_view ) + UTILITY_GROWTH_BY_PERIOD
 
-
+        # Update performance metrics
         max_utility = np.amax(self.image)
-        self.max_utility_over_time = [max_utility]
+        self.past_max_utilities.append( max_utility )
+        sum_utility = np.sum( self.image, dtype = np.uint64 )
+        self.past_sum_utilities.append( sum_utility )
+
+    """ Display various metrics """
+    # TODO TO BE COMPLETED
+    def print_metrics(self):
+
+        print self.past_max_utilities
+        print max(self.past_max_utilities)
+        print self.past_sum_utilities
+        print max(self.past_sum_utilities)
+
+        # Also : average, standard deviation, etc.
+
 
