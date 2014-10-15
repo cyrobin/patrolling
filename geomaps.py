@@ -62,50 +62,48 @@ class Geomap:
 
         if area:
             [(xmin,ymin),(xmax,ymax)] = area
-            h = min( int(xmax-xmin), self.height)
-            w = min( int(ymax-ymin), self.width )
 
+            # Bounded the area to the current map
+            xmin = max( 0, xmin )
+            ymin = max( 0, ymin )
+            xmax = min(self.height + 1, xmax )
+            ymax = min(self.width  + 1, ymax )
+
+            (h,w) = self.image[xmin:xmax,ymin:ymax].shape
+
+            wrg = WeightedRandomGenerator(self.image[xmin:xmax,ymin:ymax])
         else:
-            h = self.height
-            w = self.width
-            [(xmin,ymin),(xmax,ymax)] = [(0,0),(h+1,w+1)]
+            wrg = WeightedRandomGenerator(self.image)
 
-        # Bounded the area to the current map
-        xmin = max( 0, xmin )
-        ymin = max( 0, ymin )
-        xmax = min(self.height + 1, xmax )
-        ymax = min(self.width  + 1, ymax )
-
-        wrg = WeightedRandomGenerator(self.image[xmin:xmax,ymin:ymax])
-
-        """ Auxiliary function that check the distance of a given point <_p> to
-        a list <_points> : if _p is not too close from others sampled points
-        (>dist), then the function return True (ie one can keep <_p> as a valid
-        sample> """
+        """ Auxiliary function that check the distance of a given point <_p> to a
+        list <_points> : if _p is not too close from others sampled points (>dist),
+        then the function return True (ie one can keep <_p> as a valid sample> """
         def _not_too_close (_p, _points):
             for q in points:
+                #if euclidian_distance(_p,q) < min_dist:
                 if self.euclidian_distance_pix2meters(_p,q) < min_dist:
                     return False
             return True
 
-        i = 0 ; t_start = time.time()
+        i = 0
+        t_start = time.time()
         while i < n and (time.time() - t_start) < SAMPLING_TIME_OUT :
-
             idx = wrg()
-
             # Beware of the order (height,width) (set empirically...)
-            try:
-                (x,y) = np.unravel_index( idx, (h, w) )
-            except ValueError:
-                continue
-
             if area:
+                try:
+                    (x,y) = np.unravel_index( idx, (h, w) )
+                except ValueError:
+                    continue
                 p = (x+xmin, y+ymin)
+                if _not_too_close(p, points):
+                    points.append(p)
+                    i+=1
             else:
-                p = (x,y)
-
-            if _not_too_close(p, points):
-                points.append(p) ; i+=1
+                p= np.unravel_index( idx, (self.height, self.width ) )
+                if _not_too_close(p, points):
+                    points.append(p)
+                    i+=1
 
         if (time.time() - t_start) > SAMPLING_TIME_OUT :
             print "!WARNING! Sampling timed out ({} / {} points sampled)".format( \
