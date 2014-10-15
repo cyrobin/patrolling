@@ -214,7 +214,7 @@ def built_sensor_function(geomap, name, coef, sensor_range):
             elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
-                return coef / d
+                return min( 1, coef / d )
         return  _function
 
     def square_sensor(coef):
@@ -225,7 +225,7 @@ def built_sensor_function(geomap, name, coef, sensor_range):
             elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
-                return coef / sqrt(d)
+                return min( 1, coef / sqrt(d) )
         return  _function
 
     def log_sensor(coef):
@@ -236,7 +236,7 @@ def built_sensor_function(geomap, name, coef, sensor_range):
             elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
-                return coef / log(d)
+                return min( 1, coef / log(d) )
         return  _function
 
     def quadratic_sensor(coef):
@@ -247,7 +247,7 @@ def built_sensor_function(geomap, name, coef, sensor_range):
             elif d > geomap.length_meter2pix( sensor_range ):
                 return 0
             else:
-                return coef / d**2
+                return min( 1, coef / d**2 )
         return  _function
 
     """ This dictionnary lists available sensors function. """
