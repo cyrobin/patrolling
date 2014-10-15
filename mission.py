@@ -18,6 +18,7 @@ from glpk_solver import *
 from robot import Robot
 
 from constant import *
+from timer import Timer
 
 class Mission:
     'Class describing and planning a mission'
@@ -71,10 +72,24 @@ class Mission:
         else:
             solver()
 
+    """ Perform a whole planning loop. """
+    def loop_once(self, DISPLAY = False):
 
-    # TODO Update map based on sensing
+        with Timer('Updating poses and utility map'):
+            self.update_poses()
 
-    # TODO loop
+        with Timer('Sampling observable points'):
+            self.sample_objective()
+        with Timer('Sampling positions'):
+            self.sample_all_positions()
+
+        with Timer('Solving'):
+            self.solve()
+
+        if DISPLAY:
+            for robot in self.team:
+                robot.display_weighted_map()
+            self.display_situation()
 
     """ Update the robots poses according to <p>, a vector of positions. If no
     <p> is provided, then use the current robot's plan and set the pose to the
