@@ -211,6 +211,17 @@ class Mission:
                 labels.append( "Plan({})".format(robot.name) )
                 marks.append(  mark[0] )
 
+            # Past Plans -- links are drawn as staight segments
+            elif robot.old_plans:
+                for plan in robot.old_plans:
+                    if plan:
+                        x,y = zip(*plan)
+                        mark = plt.plot(y,x, color = COLORS[color], linewidth = 1.0)
+
+                if mark:
+                    labels.append( "Old Plan({})".format(robot.name) )
+                    marks.append(  mark[0] )
+
         # Caption
         ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
         #ax.legend(marks,labels, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,\
