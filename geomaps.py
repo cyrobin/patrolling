@@ -43,22 +43,6 @@ class Geomap:
         if VERBOSE:
             print "Image is {}x{}".format(self.width,self.height)
 
-    """ When the geomap embodies utility, update the map value using a sensor
-    model and a set of observation (view point)."""
-    def update_utility(self, team):
-
-        for (observable, utility) in np.ndenumerate(self.image):
-            if utility > 0:
-                try:
-                    best_view = max(robot.sensor( viewpoint , observable ) \
-                      for robot in team for viewpoint in robot.plan )
-                except ValueError: # when no plan was computed before
-                    best_view = 0
-                self.image[ observable ] = min( 255, \
-                        utility * ( 1 - best_view ) + UTILITY_GROWTH_BY_PERIOD )
-                # TODO have a specific geomap class for utility ?
-                # TODO do not limit utility to 255 ? (use newimage = np.uint64(image) )
-
     """ Return the distance beween two 2D points.
     Currently use the euclidian distance. Keep the length unit. """
     def dist( self, p, q ):
@@ -102,6 +86,26 @@ class Geomap:
             print self.scale_x
             print self.scale_y
             raise RuntimeError("Trying to scale a map that has different axis scales")
+
+class UtilityMap(Geomap):
+    'A Geomap that specifically embodies utility'
+
+    """ When the geomap embodies utility, update the map value using a sensor
+    model and a set of observation (view point)."""
+    def update_utility(self, team):
+
+        for (observable, utility) in np.ndenumerate(self.image):
+            if utility > 0:
+                try:
+                    best_view = max(robot.sensor( viewpoint , observable ) \
+                      for robot in team for viewpoint in robot.plan )
+                except ValueError: # when no plan was computed before
+                    best_view = 0
+                self.image[ observable ] = min( 255, \
+                        utility * ( 1 - best_view ) + UTILITY_GROWTH_BY_PERIOD )
+                # TODO have a specific geomap class for utility ?
+                # TODO do not limit utility to 255 ? (use newimage = np.uint64(image) )
+
 
 """ Return the euclidian distance beween two 2D points.
 Keep the length unit. """

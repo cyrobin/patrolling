@@ -32,7 +32,7 @@ class Mission:
         self.sampling   = self.mission[u'sampling']
         self.period     = self.mission[u'period']
 
-        self.map        = Geomap(self.map_file)
+        self.map        = UtilityMap(self.map_file)
 
         self.team = []
         for robot in self.mission[u'team']:
