@@ -7,7 +7,6 @@ TODO Descriptif
 import gdal
 import numpy as np
 from math import sqrt,log
-from copy import copy
 import time
 
 from wrg import WeightedRandomGenerator
@@ -161,55 +160,6 @@ Keep the length unit. """
 def euclidian_distance( (x1,y1), (x2,y2) ):
     return sqrt( ( (x1-x2) )**2 \
                + ( (y1-y2) )**2 )
-
-"""  Compute a <wmap> by weighting pos_map using the robot sensor,
-the utility map <u_map> and the sampled observable points given as
-arguments."""
-# FIXME ensure that all geomaps are concistant ??
-# (or deal with it ?!)
-def built_weighted_map( pos_map, sensor, u_map, points ) :
-
-    pos_map.check_coherence(u_map)
-
-    # Copy pos_map
-    weight_map = copy(pos_map)
-
-    # local references
-    image = u_map.image
-    wimage = weight_map.image.astype(np.float, copy=False)
-
-    # weight pos_map.image
-    for (p,w) in np.ndenumerate(wimage):
-        if w > 0:
-            # FIXME 0.01 is a magic number which avoid to simply discard
-            # positions that are not in range of an observable points (instead
-            # they have a very low value)
-            wimage[p] = w * ( 0.01 + sum( sensor(p,q) for q in points ) )
-
-    # Normalization
-    weight_map.image = (255 * wimage / wimage.max() ).astype(np.uint8, copy=False)
-
-    return weight_map
-
-""" Return the existing connections between the <points> in the <geomap>.
-<paths> refers to the positions in self.points and may be seen as a sparse
-matrix indicating the connections between the accessible points. One may set a
-limit for the number of connections by points, setting a maximum branching
-factor. The choice of the connexions are related to their cost, computed through
-the <f_cost> function."""
-def computed_paths( geomap, points, cost_function, branching_factor = 3 ):
-    paths = {}
-
-    # TODO It currently use the distance, which obviously not reliable (and
-    # costly?) => use a djikstra 1 to all, which stop after the first three (=>
-    # get path !)
-
-    #The first element of <points> is considered as 'non-return' position
-    for p in points:
-        links = sorted(points, key=lambda x: cost_function(p,x))
-        paths[p] = links[1:branching_factor+1]
-
-    return paths
 
 """ This function return an appropriate sensor function defined by its name,
 its coefficient, its range, and the map in use. A sensor function takes as

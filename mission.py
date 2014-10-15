@@ -250,19 +250,19 @@ def loaded_mission(mission_file):
             [ {
                 "name": "robot_1",
                 "description": "./agv.json",
-                "pos_map": "./pos_map_agv.png",
+                "accessibility_map": "./accessibility_map_agv.png",
                 "start_pose":{"x":0.1,"y":0.2,"z":0.7,"t":0.0}
                 },
               {
                 "name": "robot_2",
                 "description": "./agv.json",
-                "pos_map": "./pos_map_agv.png",
+                "accessibility_map": "./accessibility_map_agv.png",
                 "start_pose":{"x":1.1,"y":1.2,"z":0.7,"t":0.0}
                 },
               {
                 "name": "robot_3",
                 "description": "./aav.json",
-                "pos_map": "./pos_map_aav.png",
+                "accessibility_map": "./accessibility_map_aav.png",
                 "start_pose":{"x":0.7,"y":0.7,"z":10.7,"t":0.0}
                 }
         ]
@@ -292,7 +292,7 @@ def loaded_mission(mission_file):
      u'period': 99,
      u'team': [{u'description': u'./agv.json',
                 u'name': u'robot_1',
-                u'pos_map': u'./pos_map_agv.png',
+                u'accessibility_map': u'./accessibility_map_agv.png',
                 u'robot': {u'mass': 1.0, u'radius': 1.0, u'velocity': 1.0},
                 u'sensor': {u'fov': 6.28,
                             u'pose': {u't': 0.0,
@@ -305,7 +305,7 @@ def loaded_mission(mission_file):
                 u'start_pose': {u't': 0.0, u'x': 0.1, u'y': 0.2, u'z': 0.7}},
                {u'description': u'./agv.json',
                 u'name': u'robot_2',
-                u'pos_map': u'./pos_map_agv.png',
+                u'accessibility_map': u'./accessibility_map_agv.png',
                 u'robot': {u'mass': 1.0, u'radius': 1.0, u'velocity': 1.0},
                 u'sensor': {u'fov': 6.28,
                             u'pose': {u't': 0.0,
@@ -316,7 +316,7 @@ def loaded_mission(mission_file):
                 u'start_pose': {u't': 0.0, u'x': 1.1, u'y': 1.2, u'z': 0.7}},
                {u'description': u'./aav.json',
                 u'name': u'robot_3',
-                u'pos_map': u'./pos_map_aav.png',
+                u'accessibility_map': u'./accessibility_map_aav.png',
                 u'robot': {u'mass': 1.0, u'radius': 1.0, u'velocity': 1.0},
                 u'sensor': {u'fov': 6.28,
                             u'pose': {u't': 0.0,
