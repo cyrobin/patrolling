@@ -14,6 +14,7 @@ import numpy as np
 from pprint import pprint
 
 from geomaps import *
+from utility_map import UtilityMap
 from glpk_solver import *
 from robot import Robot
 

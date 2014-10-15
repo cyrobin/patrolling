@@ -97,33 +97,6 @@ class Geomap:
             print self.scale_y
             raise RuntimeError("Trying to scale a map that has different axis scales")
 
-class UtilityMap(Geomap):
-    'A Geomap that specifically embodies utility'
-
-    def __init__(self, geofile):
-        Geomap.__init__(self,geofile)
-
-        # Use int32 instead of uint8 as utility can grow arbitrarily high
-        self.image = np.uint32(self.image)
-
-        # Normalization at init (max = 100)
-        max_utility = np.amax(self.image)
-        self.image = 100 * self.image / max_utility
-
-    """ When the geomap embodies utility, update the map value using a sensor
-    model and a set of observation (view point)."""
-    def update_utility(self, team):
-
-        for (observable, utility) in np.ndenumerate(self.image):
-            if utility > 0:
-                try:
-                    best_view = max(robot.sensor( viewpoint , observable ) \
-                      for robot in team for viewpoint in robot.plan )
-                except ValueError: # when no plan was computed before
-                    best_view = 0
-
-                self.image[ observable ] = utility * ( 1 - best_view ) + UTILITY_GROWTH_BY_PERIOD
-
 """ Return the euclidian distance beween two 2D points.
 Keep the length unit. """
 def euclidian_distance( (x1,y1), (x2,y2) ):
