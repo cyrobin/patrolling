@@ -87,8 +87,7 @@ class Mission:
         print "Patrolling -- loop #{}".format(self.loop_step)
 
         with Timer('Updating poses and utility map'):
-            self.update_poses()
-            self.update_map()
+            self.update()
 
         with Timer('Sampling observable points'):
             self.sample_objective()
@@ -102,6 +101,12 @@ class Mission:
             for robot in self.team:
                 robot.display_weighted_map()
             self.display_situation()
+
+    """ Update the mission according to current plan (utility map and robots's
+    poses) """
+    def update(self):
+        self.update_map()
+        self.update_poses()
 
     """ Update the robots poses according to <p>, a vector of positions. If no
     <p> is provided, then use the current robot's plan and set the pose to the
