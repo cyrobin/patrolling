@@ -38,9 +38,11 @@ if __name__ == "__main__":
     #mission.update_map()
 
 
-    print "Loop once !"
-    mission.loop_once(True)
-    mission.loop_once(True)
-    mission.loop_once(True)
+    print "Starting Loop !"
+    #mission.loop_once()
+    mission.loop(10)
+
+    mission.update()
+    mission.display_situation()
 
     print "Done."
