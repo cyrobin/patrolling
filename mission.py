@@ -334,9 +334,9 @@ def loaded_mission(mission_file):
         json_data.close()
 
     # 'team' is a list of dictionnaries
-    for robot in mission['team']:
-        with open(robot['description']) as json_robot:
-            robot.update( json.load( json_robot ) )
+    for robot_data in mission['team']:
+        with open(robot_data['description']) as json_robot:
+            robot_data.update( json.load( json_robot ) )
             json_robot.close()
 
     if VERBOSE:
