@@ -74,7 +74,13 @@ class Mission:
         else:
             solver()
 
-    """ Perform a whole planning loop. """
+    """ Perform one whole planning loop, <n> times. """
+    def loop(self, n, DISPLAY = False):
+
+        for i in range(n):
+            self.loop_once(DISPLAY)
+
+    """ Perform one whole planning loop. """
     def loop_once(self, DISPLAY = False):
 
         self.loop_step += 1
