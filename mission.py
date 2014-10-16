@@ -28,9 +28,11 @@ class Mission:
     This dictionary can be obtain through the load_mission function. """
     def __init__(self, _mission):
 
-        self.mission    = _mission
-        self.sampling   = self.mission[u'sampling']
-        self.period     = self.mission[u'period']
+        self.mission     = _mission
+        self.name        = self.mission[u'name']
+        self.time_stamps = time.strftime("%Y-%m-%d_%H:%M")
+        self.sampling    = self.mission[u'sampling']
+        self.period      = self.mission[u'period']
         self.utility_map_file = self.mission[u'map']
 
         self.utility_map = UtilityMap( self.utility_map_file )
@@ -48,6 +50,8 @@ class Mission:
         self.solver = GLPKSolver(self)
 
         self.loop_step = 0
+
+        self.fig,self.ax = plt.subplots( figsize = FSIZE )
 
     """ Sample the observable positions (= the objective).
     Assume that the map is a distribution of probabilily,
@@ -107,6 +111,8 @@ class Mission:
                     robot.display_weighted_map()
             self.display_situation()
 
+        self.dump_situation()
+
     """ Update the mission according to current plan (utility map and robots's
     poses) """
     def update(self):
@@ -134,8 +140,12 @@ class Mission:
     def print_metrics(self):
         self.utility_map.print_metrics()
 
+    """ Dump map, robots, sampled positions and current plans """
+    def dump_situation(self):
+        self.display_situation(True)
+
     """ Display map, robots, sampled positions and current plans """
-    def display_situation(self):
+    def display_situation(self, DUMP = False):
         # Beware of the axis-inversion (y,x) spotted empirically
         # when plotting points, axis, and so on
         global FSIZE
@@ -143,7 +153,6 @@ class Mission:
 
         color = 0 ;
 
-        fig,ax = plt.subplots( figsize = FSIZE )
         imgplot = plt.imshow(self.utility_map.image)
         imgplot.set_cmap('gray')
         plt.colorbar() #  Utility
@@ -196,7 +205,7 @@ class Mission:
                         angle  = 0, \
                         color  = COLORS[color], \
                         alpha  = 0.15 )
-                    ax.add_artist( sensor_rays )
+                    self.ax.add_artist( sensor_rays )
 
                 labels.append( "Sensing ({})".format(robot.name) )
                 marks.append(  sensor_rays )
@@ -233,14 +242,21 @@ class Mission:
                     marks.append(  mark[0] )
 
         # Caption
-        ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
+        self.ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
         #ax.legend(marks,labels, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,\
            #ncol=2, mode="expand", borderaxespad=0.)
         plt.axis([0,self.utility_map.width,self.utility_map.height,0])
-        ax.xaxis.set_label_position('top')
+        self.ax.xaxis.set_label_position('top')
 
-        plt.show()
-        print "Display done."
+        if DUMP:
+            figname = "{}_{}-{}.svg".format(self.name, self.time_stamps, self.loop_step)
+            plt.savefig(figname,bbox_inches='tight')
+            print "Figure save as {}".format(figname)
+            plt.clf()
+            plt.cla()
+        else:
+            plt.show()
+            print "Display done."
 
     # TODO Dump map (as a distribution of probability)
 
