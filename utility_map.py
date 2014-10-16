@@ -30,9 +30,19 @@ class UtilityMap(Geomap):
         self.utility_growth_mask = self.image.astype(np.float, copy=True) / 100
 
         # Performance metrics
-        self.past_max_utilities = [100]
-        sum_utility = np.sum( self.image, dtype = np.uint64 )
-        self.past_sum_utilities = [ sum_utility ]
+        self.size = sum( [1 for (q,w) in enumerate(self.utility_growth_mask.flat) if w >0 ] )
+        if VERBOSE:
+            print "{} observable positions are monitored.".format(self.size)
+
+        max_utility = 100
+        sum_utility = np.sum( self.image, dtype = np.int64 )
+        diff_utility = 0
+        average_utility = sum_utility / self.image.size
+
+        self.past_max_utilities     = [ max_utility     ]
+        self.past_sum_utilities     = [ sum_utility     ]
+        self.past_diff_utilities    = [ diff_utility    ]
+        self.past_average_utilities = [ average_utility ]
 
     """ When the geomap embodies utility, update the map value using a sensor
     model and a set of observation (view point)."""
@@ -50,20 +60,32 @@ class UtilityMap(Geomap):
                     + self.utility_growth_mask[observable] * UTILITY_GROWTH_BY_PERIOD
 
         # Update performance metrics
-        max_utility = np.amax(self.image)
+        max_utility     = np.amax(self.image)
+        sum_utility     = np.sum( self.image, dtype = np.int64 )
+        diff_utility    = np.int64(self.past_sum_utilities[-1]) - sum_utility
+        average_utility = sum_utility / self.image.size
+
         self.past_max_utilities.append( max_utility )
-        sum_utility = np.sum( self.image, dtype = np.uint64 )
         self.past_sum_utilities.append( sum_utility )
+        self.past_diff_utilities.append( diff_utility )
+        self.past_average_utilities.append( average_utility )
 
     """ Display various metrics """
     # TODO TO BE COMPLETED
     def print_metrics(self):
 
-        print self.past_max_utilities
-        print max(self.past_max_utilities)
-        print self.past_sum_utilities
-        print max(self.past_sum_utilities)
+        print "Max utility over time is {} (out of {}).".format( \
+            max(self.past_max_utilities), self.past_max_utilities )
 
-        # Also : average, standard deviation, etc.
+        print "Max average of utilities over time is {} (out of {}).".format( \
+            max(self.past_average_utilities), self.past_average_utilities )
+
+        print "Worst utility evolution over time is {} (out of {}).".format( \
+                max(self.past_diff_utilities[1:]), self.past_diff_utilities )
+
+        print "Best utility evolution over time is {} (out of {}).".format( \
+                min(self.past_diff_utilities[1:]), self.past_diff_utilities )
+
+        # Also : evolution, standard deviation, etc.
 
 
