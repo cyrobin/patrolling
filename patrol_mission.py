@@ -40,9 +40,14 @@ if __name__ == "__main__":
 
     print "Starting Loop !"
     #mission.loop_once()
+    #mission.loop(5,True)
     mission.loop(10)
 
     mission.update()
+    #for robot in mission.team:
+        #robot.display_weighted_map()
     mission.display_situation()
+
+    mission.print_metrics()
 
     print "Done."
