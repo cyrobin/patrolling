@@ -22,6 +22,13 @@ class UtilityMap(Geomap):
         max_utility = np.amax(self.image)
         self.image = 100 * self.image / max_utility
 
+        # Utility growth "mask", used to differenciate various area in the map
+        # (the ones we care about, the ones we care less, and the one we do not
+        # care at all
+        # TODO load this from a separate file (independant from init value of
+        # the utility
+        self.utility_growth_mask = self.image.astype(np.float, copy=True) / 100
+
         # Performance metrics
         self.past_max_utilities = [100]
         sum_utility = np.sum( self.image, dtype = np.uint64 )
@@ -39,7 +46,8 @@ class UtilityMap(Geomap):
                 except ValueError: # when no plan was computed before
                     best_view = 0
 
-                self.image[ observable ] = utility * ( 1 - best_view ) + UTILITY_GROWTH_BY_PERIOD
+                self.image[ observable ] = utility * ( 1 - best_view ) \
+                    + self.utility_growth_mask[observable] * UTILITY_GROWTH_BY_PERIOD
 
         # Update performance metrics
         max_utility = np.amax(self.image)
