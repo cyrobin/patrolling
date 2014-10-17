@@ -15,7 +15,10 @@ COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
 
 # Sampling option
 SAMPLING_TIME_OUT = 5 # 5s
-N_SAMPLED_POS = 15 # see Robot.py
+#N_SAMPLED_POS = 15 # Number of accessible position sampled for each robot (see robot.py)
+#N_SAMPLED_OBS = 100 # Number of obsevable points sampled (see mission.py)
+N_SAMPLED_POS = 8 # Number of accessible position sampled for each robot (see robot.py)
+N_SAMPLED_OBS = 30 # Number of obsevable points sampled (see mission.py)
 MIN_SAMPLING_DIST = 5 # see mission.py
 
 # SOLVER SETTINGS

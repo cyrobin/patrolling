@@ -31,7 +31,7 @@ class Mission:
         self.mission     = _mission
         self.name        = self.mission[u'name']
         self.time_stamps = time.strftime("%Y-%m-%d_%H:%M")
-        self.sampling    = self.mission[u'sampling']
+        self.sampling    = N_SAMPLED_OBS
         self.period      = self.mission[u'period']
         self.utility_map_file = self.mission[u'map']
 
@@ -269,7 +269,6 @@ def loaded_mission(mission_file):
     Here is an instance of expected json file:
     {
         "map": "./path_to_the_observation_map.png",
-        "sampling": Nbr_of_sampling_points_(eg: 50),
         "period": max_cost_by_period_(eg: 99),
         "team":
             [ {
@@ -313,7 +312,6 @@ def loaded_mission(mission_file):
     and has, for instance, the following format :
 
     {u'map': u'./obsvertion_map.png',
-     u'sampling': 50,
      u'period': 99,
      u'team': [{u'description': u'./agv.json',
                 u'name': u'robot_1',
