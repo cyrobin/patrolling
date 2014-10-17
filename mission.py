@@ -73,6 +73,7 @@ class Mission:
         available_milp_formulation = {
             'Perception-based TSP': self.solver.solve_perception_tsp,
             'Position-based TSP'  : self.solver.solve_position_tsp,
+            'Perception-based TOP': self.solver.solve_ptop,
         }
 
         try:
