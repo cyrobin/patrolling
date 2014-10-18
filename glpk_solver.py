@@ -164,8 +164,8 @@ class GLPKSolver:
 
         # Utility of the observable areas
         def get_utility( observed ):
-            return self.mission.utility_map.image[observed]
-        u = { (q): get_utility(q) for q in Q }
+            return int(self.mission.utility_map.image[observed]) # int is needed for pymprog
+        u = { q: get_utility(q) for q in Q }
 
         # Pymprog init and option
         pb = model('Perception Team Orienteering Problem through flow formulation')
@@ -246,8 +246,7 @@ class GLPKSolver:
 
         # OBJECTIVE
         # Maximize the utility gathered along the path
-        #pb.max( sum( u[q]*y[q] for q in Q) - sum( self.cost_penalty*plan_cost[r] for r in R), 'utility' )
-        pb.max( sum( y[q] for q in Q), 'utility' )
+        pb.max( sum( u[q]*y[q] for q in Q) - sum( self.cost_penalty*plan_cost[r] for r in R), 'utility' )
 
         pb.solve() #solve the TOP problem
         print "[Planning] GLPK Solver status:",pb.status()
