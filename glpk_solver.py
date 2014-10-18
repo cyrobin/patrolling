@@ -46,8 +46,10 @@ class GLPKSolver:
 
         self._solve_tsp(computed_utility)
 
-    """ Solve a multi-tsp-like problem as a flow formulation.
-    The utility function is given as an argument (mandatory)."""
+    """ Solve a multi-tsp-like problem as a flow formulation. The utility
+    function is given as an argument (mandatory).  Return the solver status
+    ('undef' or 'feas' for 'no solution found' and 'found one feasible
+    solution' respectively"""
     def _solve_tsp(self, computed_utility ):
 
         # DATA: define useful sets
@@ -108,12 +110,18 @@ class GLPKSolver:
         pb.st( [ plan_cost[r] <= T for r in R ], 'maximal cost allowed')
         pb.st( [ sum( r.cost(p,q)*x[r,p,q] for p in N[r] for q in N[r]) <= plan_cost[r] for r in R ], 'compute plan cost')
 
-        print "GLPK: init done. Solving..."
+        if VERBOSE:
+            print "[Planning] GLPK: init done. Solving..."
 
         # OBJECTIVE
         pb.max( sum( u[r,j]*x[r,i,j] - self.cost_penalty*plan_cost[r] for r,i,j in E), 'utility' )
 
         pb.solve() #solve the TOP problem
+
+        print "[Planning] GLPK Solver status:",pb.status()
+        # Report Karush-Kuhn-Tucker optimality conditions (= error bounds)
+        if VERBOSE:
+            print pb.reportKKT()
 
         # Retrieve solution
         for r in R:
@@ -123,16 +131,26 @@ class GLPKSolver:
             for s in N[r]:
                 for p,q in itertools.product(N[r],N[r]):
                     if p == curr and x[r,p,q].primal ==  1:
-                        #print (p,q)
                         curr = q
                         r.plan.append(curr)
             if VERBOSE:
                 print "{} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
 
-        print "[Planning] Gathered utility = %.2f :-) " % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
-        print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
+        if pb.status() == 'undef':
+            print "!WARNING! NO SOLUTION found by the GLPK solver so far."
+        else:
+            print "[Planning] Gathered utility = %.2f" % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
+            print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
-    """ Solve a perception TOP problem as a flow formulation."""
+        # Return status:
+        # - feas = solution found (but no necessary optimal)
+        # - undef = no solution so far
+        return pb.status()
+
+
+    """ Solve a perception TOP problem as a flow formulation.
+    Return the solver status ('undef' or 'feas' for 'no solution found' and
+    'found one feasible solution' respectively"""
     def solve_ptop(self):
 
         # DATA: define useful sets
@@ -223,7 +241,8 @@ class GLPKSolver:
         # = determine which v is equal to one (= which one  the best observation)
         pb.st( [ y[q] <= ( sum(x[r,p2,p] * r.sensor(p,q) for p2 in N[r] )  + C*(1 - v[q,(r,p)]) ) for q in Q for (r,p) in M ], 'Define best observation')
 
-        print "GLPK: init done. Solving..."
+        if VERBOSE:
+            print "[Planning] GLPK: init done. Solving..."
 
         # OBJECTIVE
         # Maximize the utility gathered along the path
@@ -231,6 +250,10 @@ class GLPKSolver:
         pb.max( sum( y[q] for q in Q), 'utility' )
 
         pb.solve() #solve the TOP problem
+        print "[Planning] GLPK Solver status:",pb.status()
+        # Report Karush-Kuhn-Tucker optimality conditions (= error bounds)
+        if VERBOSE:
+            print pb.reportKKT()
 
         # Retrieve solution
         for r in R:
@@ -240,12 +263,19 @@ class GLPKSolver:
             for s in N[r]:
                 for p,q in itertools.product(N[r],N[r]):
                     if p == curr and x[r,p,q].primal ==  1:
-                        #print (p,q)
                         curr = q
                         r.plan.append(curr)
             if VERBOSE:
                 print "{} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
 
-        print "[Planning] Gathered utility = %.2f (out of %.2f) :-) " %  sum(u[q]*y[q].primal for q in Q), sum( u[q] for q in Q)
-        print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
+        if pb.status() == 'undef':
+            print "!WARNING! NO SOLUTION found by the GLPK solver so far."
+        else:
+            print "[Planning] Gathered utility = %.2f (out of %.2f)" %  ( sum(u[q]*y[q].primal for q in Q) , sum( u[q] for q in Q) )
+            print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
+
+        # Return status:
+        # - feas = solution found (but no necessary optimal)
+        # - undef = no solution so far
+        return pb.status()
 
