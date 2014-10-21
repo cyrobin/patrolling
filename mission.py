@@ -83,13 +83,13 @@ class Mission:
             solver(self.team, self.utility_map, self.points, self.period)
 
     """ Perform one whole planning loop, <n> times. """
-    def loop(self, n, DISPLAY = False):
+    def loop(self, n, DISPLAY = False, milp_formulation='Perception-based TSP'):
 
         for i in range(n):
-            self.loop_once(DISPLAY)
+            self.loop_once(DISPLAY, milp_formulation)
 
     """ Perform one whole planning loop. """
-    def loop_once(self, DISPLAY = False):
+    def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TSP'):
 
         self.loop_step += 1
         print "Patrolling -- loop #{}".format(self.loop_step)

@@ -39,10 +39,11 @@ if __name__ == "__main__":
 
 
     print "Starting Loop !"
-    #mission.loop_once()
+    mission.loop_once('Perception-based TOP')
     #mission.loop(5,True)
     mission.loop(10)
 
+    print "Updating..."
     mission.update()
     #for robot in mission.team:
         #robot.display_weighted_map()
