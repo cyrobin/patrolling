@@ -19,45 +19,51 @@ from constant import *
 class GLPKSolver:
     'Class embedding the GLPK solvers'
 
-    """ Init the solver according to the mission. """
-    def __init__(self, mission):
+    """ Init the solver. """
+    def __init__(self):
 
-        self.mission = mission
         self.cost_penalty = COST_PENALTY
 
-    """ Solve the problem as a position-based multi-TSP. """
-    def solve_position_tsp(self):
+    """ Solve the problem as a position-based multi-TSP.
+    Update the plan of the team of Robots according to the best solution found
+    before the time out, and return the solver status ('undef' or 'feas' for
+    'no solution found' and 'found one feasible solution' respectively"""
+    def solve_position_tsp(self, team, utility_map, observable_points, period):
 
         # Utility = do not take sensor model into account
         # Solely consider the current position utility
         def computed_utility( robot, position):
-            return self.mission.utility_map.image[position]
+            return utility_map.image[position]
 
-        self._solve_tsp(computed_utility)
+        return self._solve_tsp(computed_utility, team, period )
 
-    """ Solve the problem as a perception-based multi-TSP. """
-    def solve_perception_tsp(self):
+    """ Solve the problem as a perception-based multi-TSP.
+    Update the plan of the team of Robots according to the best solution found
+    before the time out, and return the solver status ('undef' or 'feas' for
+    'no solution found' and 'found one feasible solution' respectively"""
+    def solve_perception_tsp(self, team, utility_map, observable_points, period):
 
         # Utility = weighted sum of observed areas
         def computed_utility( robot, position):
-            return sum( self.mission.utility_map.image[observed] * \
+            return sum( utility_map.image[observed] * \
                     robot.sensor(position,observed) \
-                    for observed in self.mission.points )
+                    for observed in observable_points )
 
-        self._solve_tsp(computed_utility)
+        return self._solve_tsp(computed_utility, team, period )
 
     """ Solve a multi-tsp-like problem as a flow formulation. The utility
-    function is given as an argument (mandatory).  Return the solver status
-    ('undef' or 'feas' for 'no solution found' and 'found one feasible
-    solution' respectively"""
-    def _solve_tsp(self, computed_utility ):
+    function is given as an argument (mandatory).  Update the plan of the team
+    of Robots according to the best solution found before the time out, and
+    return the solver status ('undef' or 'feas' for 'no solution found' and
+    'found one feasible solution' respectively"""
+    def _solve_tsp(self, computed_utility, team, period ):
 
         # DATA: define useful sets
-        R = self.mission.team
+        R = team
         N = {r:r.points for r in R}
         M = [(r,p) for r in R for p in N[r]]
         E = [(r,p,q) for r in R for p in N[r] for q in N[r] ]
-        T =  self.mission.period # Maximal cost allowed
+        T =  period # Maximal cost allowed
 
         # Utility = weighted sum of observed areas
         u = { (r,p): computed_utility(r,p) for r in R for p in N[r] }
@@ -149,22 +155,23 @@ class GLPKSolver:
 
 
     """ Solve a perception TOP problem as a flow formulation.
-    Return the solver status ('undef' or 'feas' for 'no solution found' and
-    'found one feasible solution' respectively"""
-    def solve_ptop(self):
+    Update the plan of the team of Robots according to the best solution found
+    before the time out, and return the solver status ('undef' or 'feas' for
+    'no solution found' and 'found one feasible solution' respectively"""
+    def solve_ptop(self, team, utility_map, observable_points, period):
 
         # DATA: define useful sets
-        R = self.mission.team
+        R = team
         N = { r:r.points for r in R }
         M = [ (r,p) for r in R for p in N[r] ]
         E = [ (r,p,q) for r in R for p in N[r] for q in N[r] ]
-        Q = [ q for q in self.mission.points ]
+        Q = [ q for q in points ]
         V = [ (q,m) for q in Q for m in M ]
-        T = self.mission.period # Maximal cost allowed
+        T = period # Maximal cost allowed
 
         # Utility of the observable areas
         def get_utility( observed ):
-            return int(self.mission.utility_map.image[observed]) # int is needed for pymprog
+            return int(utility_map.image[observed]) # int is needed for pymprog
         u = { q: get_utility(q) for q in Q }
 
         # Pymprog init and option

@@ -47,7 +47,7 @@ class Mission:
 
         self.points = [] # the sampled points to be observed
 
-        self.solver = GLPKSolver(self)
+        self.solver = GLPKSolver()
 
         self.loop_step = 0
 
@@ -69,7 +69,6 @@ class Mission:
 
     """ Solve (using glpk) """
     def solve(self, milp_formulation = 'Perception-based TSP'):
-
         available_milp_formulation = {
             'Perception-based TSP': self.solver.solve_perception_tsp,
             'Position-based TSP'  : self.solver.solve_position_tsp,
@@ -81,7 +80,7 @@ class Mission:
         except KeyError:
             print "!ERROR! '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
         else:
-            solver()
+            solver(self.team, self.utility_map, self.points, self.period)
 
     """ Perform one whole planning loop, <n> times. """
     def loop(self, n, DISPLAY = False):
@@ -104,7 +103,7 @@ class Mission:
             self.sample_all_positions()
 
         with Timer('Solving'):
-            self.solve()
+            self.solve(milp_formulation)
 
         if DISPLAY:
             if VERBOSE:
