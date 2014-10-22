@@ -5,6 +5,7 @@ TODO Descriptif
 """
 
 import numpy as np
+from copy import copy,deepcopy
 
 from geomaps import Geomap
 from constant import *
@@ -44,10 +45,26 @@ class UtilityMap(Geomap):
         self.past_average_diff_utilities    = [ average_diff_utility ]
         self.past_average_utilities = [ average_utility ]
 
+    """ deep copy a UtilityMap -- shared the Geomap attributes but keep its own
+    metrics and its own image (=values) """
+    def __deepcopy__(self,memo):
+        my_copy = copy(self)
+
+        # Copy of UtilityMap attributes
+        my_copy.utility_growth_mask         = deepcopy(self.utility_growth_mask)
+        my_copy.size                        = deepcopy(self.size)
+        my_copy.past_max_utilities          = deepcopy(self.past_max_utilities)
+        my_copy.past_sum_utilities          = deepcopy(self.past_sum_utilities)
+        my_copy.past_average_utilities      = deepcopy(self.past_average_utilities)
+        my_copy.past_average_diff_utilities = deepcopy(self.past_average_diff_utilities)
+
+        my_copy.image = np.copy(self.image)
+
+        return my_copy
+
     """ When the geomap embodies utility, update the map value using a sensor
     model and a set of observation (view point)."""
     def update_utility(self, team):
-
         for (observable, utility) in np.ndenumerate(self.image):
             if utility > 0:
                 try:
@@ -73,7 +90,6 @@ class UtilityMap(Geomap):
     """ Display various metrics """
     # TODO TO BE COMPLETED
     def print_metrics(self):
-
         print "Max utility over time is {} (out of {}).".format( \
             max(self.past_max_utilities), self.past_max_utilities )
 
@@ -85,7 +101,6 @@ class UtilityMap(Geomap):
 
         print "Best average utility evolution over time is {} (out of {}).".format( \
                 min(self.past_average_diff_utilities[1:]), self.past_average_diff_utilities )
-
         # Also : evolution, standard deviation, etc.
 
 
