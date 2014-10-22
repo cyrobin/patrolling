@@ -25,8 +25,8 @@ N=$(ls $1*.svg |wc -l)
 convert -dispose none  -delay 200 \
     +antialias \
     -draw "text 35,660 'Resulting plans'" -pointsize 35 -fill black \
-    *$1*1$TMP.png  \
-    $(for ((a=2; a<$N; a++)); do file=$(ls *$1*$a$TMP.png); \
+    *$1*001$TMP.png  \
+    $(for ((a=2; a<$N; a++)); do file=$(printf -- "*$1*%03d$TMP.png" $a) ; \
         printf -- "-delay 200 -page +331+0 %s " $file; \
         done;) \
     -loop 0  $1.gif
