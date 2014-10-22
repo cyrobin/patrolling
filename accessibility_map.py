@@ -5,13 +5,23 @@ TODO Descriptif
 """
 
 import numpy as np
-from copy import copy
+from copy import copy,deepcopy
 
 from geomaps import Geomap
 from constant import *
 
 class AccessibilityMap(Geomap):
     'A Geomap that specifically embodies robot accessibility'
+
+    """ deep copy an AccessibilityMap -- shared the Geomap attributes but keep
+    its own metrics and its own image (=values) """
+    def __deepcopy__(self,memo):
+        my_copy = copy(self)
+
+        # Real (deep) copy of the image
+        my_copy.image = np.copy(self.image)
+
+        return my_copy
 
     """  Compute a <weighted_map> by weighting the AccessibilityyMap using the
     robot sensor, the UtilityMap <utility_map> and the sampled observable
@@ -20,7 +30,7 @@ class AccessibilityMap(Geomap):
 
         self.check_coherence(utility_map)
 
-        weighted_map = copy(self)
+        weighted_map = deepcopy(self)
 
         # local references
         utilities = utility_map.image
