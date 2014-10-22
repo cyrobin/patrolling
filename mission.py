@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import numpy as np
 from pprint import pprint
+from copy import deepcopy
 
 from geomaps import *
 from utility_map import UtilityMap
@@ -169,8 +170,7 @@ class Mission:
 
         # copy map into virtual map which is use to simulate the impact of
         # other robots while planning for a specific one
-        self.virtual_utility_map = copy(self.utility_map)
-        #self.virtual_utility_map = deepcopy(self.utility_map)
+        self.virtual_utility_map = deepcopy(self.utility_map)
 
         # Plan for one robot at a time, considering the impact of the robots
         # that have already planned something for this period
