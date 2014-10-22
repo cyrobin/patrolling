@@ -36,12 +36,12 @@ class UtilityMap(Geomap):
 
         max_utility = 100
         sum_utility = np.sum( self.image, dtype = np.int64 )
-        diff_utility = 0
-        average_utility = sum_utility / self.image.size
+        average_diff_utility = 0
+        average_utility = sum_utility / self.size
 
         self.past_max_utilities     = [ max_utility     ]
         self.past_sum_utilities     = [ sum_utility     ]
-        self.past_diff_utilities    = [ diff_utility    ]
+        self.past_average_diff_utilities    = [ average_diff_utility ]
         self.past_average_utilities = [ average_utility ]
 
     """ When the geomap embodies utility, update the map value using a sensor
@@ -62,12 +62,12 @@ class UtilityMap(Geomap):
         # Update performance metrics
         max_utility     = np.amax(self.image)
         sum_utility     = np.sum( self.image, dtype = np.int64 )
-        diff_utility    = np.int64(self.past_sum_utilities[-1]) - sum_utility
-        average_utility = sum_utility / self.image.size
+        average_diff_utility    = (np.int64(self.past_sum_utilities[-1]) - sum_utility ) / self.size
+        average_utility = sum_utility / self.size
 
         self.past_max_utilities.append( max_utility )
         self.past_sum_utilities.append( sum_utility )
-        self.past_diff_utilities.append( diff_utility )
+        self.past_average_diff_utilities.append( average_diff_utility )
         self.past_average_utilities.append( average_utility )
 
     """ Display various metrics """
@@ -80,11 +80,11 @@ class UtilityMap(Geomap):
         print "Max average of utilities over time is {} (out of {}).".format( \
             max(self.past_average_utilities), self.past_average_utilities )
 
-        print "Worst utility evolution over time is {} (out of {}).".format( \
-                max(self.past_diff_utilities[1:]), self.past_diff_utilities )
+        print "Worst average utility evolution over time is {} (out of {}).".format( \
+                max(self.past_average_diff_utilities[1:]), self.past_average_diff_utilities )
 
-        print "Best utility evolution over time is {} (out of {}).".format( \
-                min(self.past_diff_utilities[1:]), self.past_diff_utilities )
+        print "Best average utility evolution over time is {} (out of {}).".format( \
+                min(self.past_average_diff_utilities[1:]), self.past_average_diff_utilities )
 
         # Also : evolution, standard deviation, etc.
 
