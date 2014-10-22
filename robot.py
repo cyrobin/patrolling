@@ -61,6 +61,9 @@ class Robot:
     range, and are accessible for at most a cost <max_cost>. """
     def sample_positions(self, u_map, points, max_cost, use_weight = False):
 
+        if USE_WEIGHTED_MAP:
+            use_weight = True
+
         # Compute the intermediary self.weighted_accessibility_map : it
         # embodies the utility of the position to be sampled while taking into
         # account the accessibility criteria given by self.accessibility_map
