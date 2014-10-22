@@ -266,20 +266,21 @@ class Mission:
                     marks.append(  mark )
 
                 # Visibility (sensed areas)
-                sensor_x_range = self.utility_map.length_meter2pix_x( robot.sensor_range )
-                sensor_y_range = self.utility_map.length_meter2pix_y( robot.sensor_range )
+                if VERBOSE:
+                    sensor_x_range = self.utility_map.length_meter2pix_x( robot.sensor_range )
+                    sensor_y_range = self.utility_map.length_meter2pix_y( robot.sensor_range )
 
-                for xp,yp in zip(x,y):
-                    sensor_rays = Ellipse( (yp,xp),  \
-                        width  = 2 * sensor_x_range, \
-                        height = 2 * sensor_y_range, \
-                        angle  = 0, \
-                        color  = COLORS[color], \
-                        alpha  = 0.15 )
-                    self.ax.add_artist( sensor_rays )
+                    for xp,yp in zip(x,y):
+                        sensor_rays = Ellipse( (yp,xp),  \
+                            width  = 2 * sensor_x_range, \
+                            height = 2 * sensor_y_range, \
+                            angle  = 0, \
+                            color  = COLORS[color], \
+                            alpha  = 0.15 )
+                        self.ax.add_artist( sensor_rays )
 
-                labels.append( "Sensing ({})".format(robot.name) )
-                marks.append(  sensor_rays )
+                    labels.append( "Sensing ({})".format(robot.name) )
+                    marks.append(  sensor_rays )
 
             # Path links are drawn as staight segments
             if robot.paths:
@@ -320,7 +321,7 @@ class Mission:
         self.ax.xaxis.set_label_position('top')
 
         if DUMP:
-            figname = "{}_{}-{}.svg".format(self.name, self.time_stamps, self.loop_step)
+            figname = "{}_{}-{:03d}.svg".format(self.name, self.time_stamps, self.loop_step)
             plt.savefig(figname,bbox_inches='tight')
             print "Figure save as {}".format(figname)
             plt.clf()
