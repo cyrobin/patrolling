@@ -18,33 +18,16 @@ if __name__ == "__main__":
         json_mission = loaded_mission(argv[1])
         mission =  Mission (  json_mission )
 
-    #with Timer('Sampling observable points'):
-        #mission.sample_objective()
-    #with Timer('Sampling positions'):
-        #mission.sample_all_positions()
-
-    #print "Solving..."
-    #with Timer('Solving'):
-        #mission.solve()
-        ##mission.solve('Position-based TSP')
-
-    #print "Displaying..."
-    #for robot in mission.team:
-        #robot.display_weighted_map()
-    #mission.display_situation()
-
-    #print "Updating poses and map"
-    #mission.update_poses()
-    #mission.update_map()
-
-
     print "Starting Loop !"
-    mission.loop_once('Perception-based TOP')
-    #mission.loop(5,True)
-    mission.loop(10)
+    #mission.loop_once('Perception-based TSP')
+    #mission.loop(10,True,'Perception-based TSP')
+
+    #mission.decentralized_loop_once()
+    mission.decentralized_loop(5,False,'Perception-based TSP')
 
     print "Updating..."
     mission.update()
+    mission.dump_situation()
     #for robot in mission.team:
         #robot.display_weighted_map()
     mission.display_situation()
