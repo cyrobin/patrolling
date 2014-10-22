@@ -169,7 +169,7 @@ class GLPKSolver:
         N = { r:r.points for r in R }
         M = [ (r,p) for r in R for p in N[r] ]
         E = [ (r,p,q) for r in R for p in N[r] for q in N[r] ]
-        Q = [ q for q in observable_pointspoints ]
+        Q = [ q for q in observable_points ]
         V = [ (q,m) for q in Q for m in M ]
         T = period # Maximal cost allowed
 
