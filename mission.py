@@ -50,7 +50,7 @@ class Mission:
 
         self.solver = GLPKSolver()
 
-        self.loop_step = 0
+        self.count_periods = 0
 
         self.fig,self.ax = plt.subplots( figsize = FSIZE )
 
@@ -92,9 +92,6 @@ class Mission:
     """ Perform one whole planning loop. """
     def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TSP'):
 
-        self.loop_step += 1
-        print "Patrolling -- loop #{}".format(self.loop_step)
-
         with Timer('Updating poses and utility map'):
             self.update()
 
@@ -117,8 +114,14 @@ class Mission:
     """ Update the mission according to current plan (utility map and robots's
     poses) """
     def update(self):
+
+        if VERBOSE:
+            print "Updating..."
+        self.count_periods += 1
+
         self.update_map()
         self.update_poses()
+        print "Patrolling -- Period #{} begins.".format(self.count_periods)
 
     """ Update the robots poses according to <p>, a vector of positions. If no
     <p> is provided, then use the current robot's plan and set the pose to the
@@ -161,9 +164,6 @@ class Mission:
     """ Perform one whole planning loop in a decentralized manner. """
     def decentralized_loop_once(self, DISPLAY = False, \
             milp_formulation = 'Perception-based TSP'):
-
-        self.loop_step += 1
-        print "Patrolling -- loop #{} (decentralized)".format(self.loop_step)
 
         with Timer('Updating poses and utility map'):
             self.update()
@@ -321,7 +321,7 @@ class Mission:
         self.ax.xaxis.set_label_position('top')
 
         if DUMP:
-            figname = "{}_{}-{:03d}.svg".format(self.name, self.time_stamps, self.loop_step)
+            figname = "{}_{}-{:03d}.svg".format(self.name, self.time_stamps, self.count_periods)
             plt.savefig(figname,bbox_inches='tight')
             print "Figure save as {}".format(figname)
             plt.clf()
@@ -330,7 +330,7 @@ class Mission:
             plt.show()
             print "Display done."
 
-    # TODO Dump map (as a distribution of probability)
+    # TODO Dump geomap (as a distribution of probability)
 
     """ end """
 
