@@ -26,8 +26,9 @@ class GLPKSolver:
 
     """ Solve the problem as a position-based multi-TSP.
     Update the plan of the team of Robots according to the best solution found
-    before the time out, and return the solver status ('undef' or 'feas' for
-    'no solution found' and 'found one feasible solution' respectively"""
+    before the time out, and return the solver status ('undef' or 'feas' or
+    'opt' for 'no solution found', 'found one feasible solution', and 'found
+    optimal solution' respectively"""
     def solve_position_tsp(self, team, utility_map, observable_points, period):
 
         # Utility = do not take sensor model into account
@@ -39,8 +40,9 @@ class GLPKSolver:
 
     """ Solve the problem as a perception-based multi-TSP.
     Update the plan of the team of Robots according to the best solution found
-    before the time out, and return the solver status ('undef' or 'feas' for
-    'no solution found' and 'found one feasible solution' respectively"""
+    before the time out, and return the solver status ('undef' or 'feas' or
+    'opt' for 'no solution found', 'found one feasible solution', and 'found
+    optimal solution' respectively"""
     def solve_perception_tsp(self, team, utility_map, observable_points, period):
 
         # Utility = weighted sum of observed areas
@@ -54,8 +56,9 @@ class GLPKSolver:
     """ Solve a multi-tsp-like problem as a flow formulation. The utility
     function is given as an argument (mandatory).  Update the plan of the team
     of Robots according to the best solution found before the time out, and
-    return the solver status ('undef' or 'feas' for 'no solution found' and
-    'found one feasible solution' respectively"""
+    return the solver status ('undef' or 'feas' or 'opt' for 'no solution
+    found', 'found one feasible solution', and 'found optimal solution'
+    respectively"""
     def _solve_tsp(self, computed_utility, team, period ):
 
         # DATA: define useful sets
@@ -156,8 +159,9 @@ class GLPKSolver:
 
     """ Solve a perception TOP problem as a flow formulation.
     Update the plan of the team of Robots according to the best solution found
-    before the time out, and return the solver status ('undef' or 'feas' for
-    'no solution found' and 'found one feasible solution' respectively"""
+    before the time out, and return the solver status ('undef' or 'feas' or
+    'opt' for 'no solution found', 'found one feasible solution', and 'found
+    optimal solution' respectively"""
     def solve_ptop(self, team, utility_map, observable_points, period):
 
         # DATA: define useful sets
@@ -165,7 +169,7 @@ class GLPKSolver:
         N = { r:r.points for r in R }
         M = [ (r,p) for r in R for p in N[r] ]
         E = [ (r,p,q) for r in R for p in N[r] for q in N[r] ]
-        Q = [ q for q in points ]
+        Q = [ q for q in observable_pointspoints ]
         V = [ (q,m) for q in Q for m in M ]
         T = period # Maximal cost allowed
 
@@ -281,6 +285,7 @@ class GLPKSolver:
             print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
         # Return status:
+        # - opt = an optimal integer solution has been found !
         # - feas = solution found (but no necessary optimal)
         # - undef = no solution so far
         return pb.status()
