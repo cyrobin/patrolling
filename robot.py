@@ -135,7 +135,11 @@ class Robot:
         global FSIZE
         global COLORS
 
-        color = 0 ; # colors
+        color = 1 ; # colors
+
+        # FIXME The command below raises warnings/error messages at runtimes
+        # but avoid weird blank figure (known "bug/features" in pyplot)
+        plt.close()
 
         fig,ax = plt.subplots( figsize = FSIZE )
         imgplot = plt.imshow(self.weighted_accessibility_map.image)
@@ -168,6 +172,8 @@ class Robot:
         ax.xaxis.set_label_position('top')
 
         plt.show()
+        plt.clf()
+        plt.cla()
 
     """end"""
 
