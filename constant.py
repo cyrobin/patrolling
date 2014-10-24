@@ -10,8 +10,10 @@ VERBOSE=False
 #VERBOSE=True
 
 FSIZE = (12,12) # plot (figure size)
-COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
-        'purple','darkgoldenrod' ,'red')
+OBS_COLOR = 'green'
+COM_COLOR = 'red'
+ROBOT_COLORS = ('cyan','magenta','yellow','purple','darkgoldenrod', \
+        'lightgreen','firebrick','blue')
 
 # Sampling option
 SAMPLING_TIME_OUT = 5 # 5s

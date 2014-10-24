@@ -221,10 +221,6 @@ class Mission:
     def display_situation(self, DUMP = False):
         # Beware of the axis-inversion (y,x) spotted empirically
         # when plotting points, axis, and so on
-        global FSIZE
-        global COLORS
-
-        color = 0 ;
 
         imgplot = plt.imshow(self.utility_map.image)
         imgplot.set_cmap('gray')
@@ -235,22 +231,23 @@ class Mission:
         # sampled points
         if self.points:
             x,y   = zip(*self.points)
-            mark, = plt.plot(y, x, 'o', c=COLORS[color] )
+            mark, = plt.plot( y, x, 'o', c=OBS_COLOR )
             label = "Observable positions"
 
             labels.append( label )
             marks.append( mark )
 
+        color = 0 ;
+
         # Robots positions and paths
         for robot in self.team:
 
             # Each robot has a specific color
-            color += 1
-            if len(COLORS) == color:
+            if len(ROBOT_COLORS) == color:
                 color = 0
 
             # starting position
-            mark, = plt.plot(robot.pose[1],robot.pose[0], '^', c=COLORS[color])
+            mark, = plt.plot(robot.pose[1],robot.pose[0], '^', c=ROBOT_COLORS[color])
             label = "Starting position ({})".format(robot.name)
 
             labels.append( label )
@@ -261,7 +258,7 @@ class Mission:
                 x,y = zip(*robot.points)
 
                 if not robot.paths:
-                    mark, = plt.plot(y, x, 'v', c=COLORS[color])
+                    mark, = plt.plot(y, x, 'v', c=ROBOT_COLORS[color])
                     label = "Accessible positions ({})".format(robot.name)
 
                     labels.append( label )
@@ -277,7 +274,7 @@ class Mission:
                             width  = 2 * sensor_x_range, \
                             height = 2 * sensor_y_range, \
                             angle  = 0, \
-                            color  = COLORS[color], \
+                            color  = ROBOT_COLORS[color], \
                             alpha  = 0.15 )
                         self.ax.add_artist( sensor_rays )
 
@@ -290,7 +287,7 @@ class Mission:
                 for (p,l) in robot.paths.iteritems():
                     (x1,y1) = p
                     for (x2,y2) in l:
-                        segments.extend([(y1,y2),(x1,x2),COLORS[color]])
+                        segments.extend([(y1,y2),(x1,x2),ROBOT_COLORS[color]])
                 mark = plt.plot(*segments,linestyle='--')
 
                 labels.append( "Path links ({})".format(robot.name) )
@@ -299,7 +296,7 @@ class Mission:
             # Plan -- links are drawn as staight segments
             if robot.plan:
                 x,y = zip(*robot.plan)
-                mark = plt.plot(y,x, color = COLORS[color], linewidth = 2.0)
+                mark = plt.plot(y,x, color = ROBOT_COLORS[color], linewidth = 2.0)
 
                 labels.append( "Plan({})".format(robot.name) )
                 marks.append(  mark[0] )
@@ -309,11 +306,13 @@ class Mission:
                 for plan in robot.old_plans:
                     if plan:
                         x,y = zip(*plan)
-                        mark = plt.plot(y,x, color = COLORS[color], linewidth = 1.0)
+                        mark = plt.plot(y,x, color = ROBOT_COLORS[color], linewidth = 1.0)
 
                 if mark:
                     labels.append( "Old Plan({})".format(robot.name) )
                     marks.append(  mark[0] )
+
+            color += 1
 
         # Caption
         self.ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
@@ -425,8 +424,6 @@ def loaded_mission(mission_file):
 
 
     """
-    global VERBOSE
-
     with open(mission_file) as json_data:
         mission = json.load(json_data)
         json_data.close()

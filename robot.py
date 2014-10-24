@@ -149,10 +149,8 @@ class Robot:
     def display_weighted_map(self):
         # Beware of the axis-inversion (y,x) spotted empirically
         # when plotting points, axis, and so on
-        global FSIZE
-        global COLORS
 
-        color = 1 ; # colors
+        color = 0 ; # colors
 
         # FIXME The command below raises warnings/error messages at runtimes
         # but avoid weird blank figure (known "bug/features" in pyplot)
@@ -168,7 +166,7 @@ class Robot:
         # sampled accessible positions
         if self.points:
             x,y   = zip(*self.points)
-            mark, = plt.plot(y, x, 'o', c=COLORS[color] )
+            mark, = plt.plot(y, x, 'o', c=ROBOT_COLORS[color] )
             label = "Accessible positions ({})".format(self.name)
 
             labels.append( label )
@@ -176,7 +174,7 @@ class Robot:
 
         # starting position
         color += 1
-        mark, = plt.plot(self.pose[1],self.pose[0], '^', c=COLORS[color])
+        mark, = plt.plot(self.pose[1],self.pose[0], '^', c=ROBOT_COLORS[color])
         label = "Starting position ({})".format(self.name)
 
         labels.append( label )
