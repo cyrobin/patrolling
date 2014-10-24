@@ -79,7 +79,7 @@ class UtilityMap(Geomap):
         # Update performance metrics
         max_utility     = np.amax(self.image)
         sum_utility     = np.sum( self.image, dtype = np.int64 )
-        average_diff_utility    = (np.int64(self.past_sum_utilities[-1]) - sum_utility ) / self.size
+        average_diff_utility    = (sum_utility - np.int64(self.past_sum_utilities[-1])) / self.size
         average_utility = sum_utility / self.size
 
         self.past_max_utilities.append( max_utility )
