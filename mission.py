@@ -31,7 +31,7 @@ class Mission:
 
         self.mission     = _mission
         self.name        = self.mission[u'name']
-        self.time_stamps = time.strftime("%Y-%m-%d_%H:%M")
+        self.time_stamps = time.strftime("%Y-%m-%d_%H:%M:%S")
         self.sampling    = N_SAMPLED_OBS
         self.period      = self.mission[u'period']
         self.utility_map_file = self.mission[u'map']
@@ -181,7 +181,9 @@ class Mission:
                 # update the virtual map (ie compute what map would be
                 # according to the plan of the precedent virtual team)
                 self.virtual_utility_map.update_utility( self.virtual_team )
-                print "Virtual map updated. Solving..."
+
+                if VERBOSE:
+                    print "[Planning] Virtual map updated. Sampling and Solving..."
 
                 # Update virtual team
                 self.virtual_team = [robot]
