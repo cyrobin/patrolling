@@ -33,6 +33,8 @@ class Robot:
         self.sensor_fov     = robot[u'sensor'][u'fov']
         self.sensor_pose    = robot[u'sensor'][u'pose']
 
+        self.comlink_range  = robot[u'comlink'][u'range']
+
         self.pose           =(robot[u'start_pose'][u'x'],
                               robot[u'start_pose'][u'y'],
                               robot[u'start_pose'][u'z'],
