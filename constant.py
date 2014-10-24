@@ -15,15 +15,18 @@ COLORS = ('green','cyan' ,'firebrick' ,'yellow' ,'blue' , \
 
 # Sampling option
 SAMPLING_TIME_OUT = 5 # 5s
-#N_SAMPLED_POS=15 # Number of accessible positions sampled for each robot (see robot.py)
+#N_SAMPLED_POS=20 # Number of accessible positions sampled for each robot (see robot.py)
 #N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
-#N_SAMPLED_POS=8 # Number of accessible positions sampled for each robot (see robot.py)
-#N_SAMPLED_OBS=20 # Number of obsevable points sampled (see mission.py)
+#N_SAMPLED_POS=6 # Number of accessible positions sampled for each robot (see robot.py)
+#N_SAMPLED_OBS=40 # Number of obsevable points sampled (see mission.py)
 N_SAMPLED_POS=40 # Number of accessible positions sampled for each robot (see robot.py)
 N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
 MIN_SAMPLING_DIST = 5 # see mission.py
 USE_WEIGHTED_MAP = False
-#USE_WEIGHTED_MAP = True
+USE_WEIGHTED_MAP = True
+FAST_WEIGHTED_SAMPLING = False
+FAST_WEIGHTED_SAMPLING = True
+FAST_WEIGHTED_SAMPLING_FACTOR = 10
 
 # SOLVER SETTINGS
 COST_PENALTY = 0.0001

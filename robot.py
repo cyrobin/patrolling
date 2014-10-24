@@ -54,11 +54,15 @@ class Robot:
         self.old_plans  = []
 
     """ Sample the accessible positions (= the search space for potential
-    plans).  To do so, optionnaly compute a intermediary
-    <weighted_accessibility_map> weighted by the robot sensor, the utility map
-    <u_map> and the sampled observable points given as arguments. The points
-    are far apart with a minimal distance proportional to the robot's sensor
-    range, and are accessible for at most a cost <max_cost>. """
+    plans). To do so, optionnaly compute a intermediary
+    <weighted_accessibility_map> weighted by the robot sensor (this can take
+    quite a long time !), the utility map <u_map> and the sampled observable
+    points given as arguments. The points are far apart with a minimal distance
+    proportional to the robot's sensor range, and are accessible for at most a
+    cost <max_cost>. An additional 'Fast_weighted_sampling' option can be
+    triggered: in this case, one samples more positions than really needed, and
+    then sorted them according to the sensor weights, and take the best
+    ones."""
     def sample_positions(self, u_map, points, max_cost, use_weight = False):
 
         if USE_WEIGHTED_MAP:
@@ -67,7 +71,7 @@ class Robot:
         # Compute the intermediary self.weighted_accessibility_map : it
         # embodies the utility of the position to be sampled while taking into
         # account the accessibility criteria given by self.accessibility_map
-        if use_weight:
+        if use_weight and not FAST_WEIGHTED_SAMPLING:
             self.weighted_accessibility_map = \
                 self.accessibility_map.built_weighted_map( self.sensor, \
                                                            u_map, \
@@ -83,7 +87,20 @@ class Robot:
         xmax = self.pose[0] + max_dist + 1
         ymax = self.pose[1] + max_dist + 1
 
-        self.points = self.weighted_accessibility_map.sampled_points( \
+        if use_weight and FAST_WEIGHTED_SAMPLING:
+            positions = self.weighted_accessibility_map.sampled_points( \
+                FAST_WEIGHTED_SAMPLING_FACTOR*N_SAMPLED_POS, \
+                min_dist = 0.5*self.sensor_range, \
+                area = [(xmin,ymin),(xmax,ymax)] )
+
+            def get_weight(p):
+                return u_map.image[p] * ( 0.01 + sum(self.sensor(p,q) for q in points ))
+
+            sorted(positions, reverse = True, key = get_weight )
+            self.points = positions[0:N_SAMPLED_POS]
+
+        else:
+            self.points = self.weighted_accessibility_map.sampled_points( \
                 N_SAMPLED_POS, \
                 min_dist = 0.5*self.sensor_range, \
                 area = [(xmin,ymin),(xmax,ymax)] )
