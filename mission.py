@@ -140,7 +140,8 @@ class Mission:
         self.utility_map.update_utility( self.team )
 
     """ Decentrally solve (using glpk) """
-    def decentrally_solve(self, milp_formulation = 'Perception-based TSP'):
+    def decentrally_solve(self, milp_formulation = 'Perception-based TSP',
+             available_comlinks = None ):
         available_milp_formulation = {
             'Perception-based TSP': self.solver.solve_perception_tsp,
             'Position-based TSP'  : self.solver.solve_position_tsp,
@@ -152,7 +153,7 @@ class Mission:
             print "!ERROR! '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
         else:
             solver(self.virtual_team, self.virtual_utility_map, \
-                    self.points, self.period)
+                    self.points, self.period, available_comlinks)
 
     """ Perform one whole decentralized planning loop, <n> times. """
     def decentralized_loop(self, n, DISPLAY = False, \
@@ -175,29 +176,34 @@ class Mission:
         # Plan for one robot at a time, considering the impact of the robots
         # that have already planned something for this period
         # TODO change the planning order to a more smart way
-        self.virtual_team = []
-        for robot in self.team:
-            with Timer("Planning for {}".format(robot.name)):
-                # update the virtual map (ie compute what map would be
-                # according to the plan of the precedent virtual team)
-                self.virtual_utility_map.update_utility( self.virtual_team )
+        with Timer('[Planning the whole decentralized loop'):
+            self.virtual_team = []
+            available_comlinks= []
+            for robot in self.team:
+                with Timer("Planning for {}".format(robot.name)):
+                    # update the virtual map (ie compute what map would be
+                    # according to the plan of the precedent virtual team)
+                    self.virtual_utility_map.update_utility( self.virtual_team )
 
-                if VERBOSE:
-                    print "[Planning] Virtual map updated. Sampling and Solving..."
+                    if VERBOSE:
+                        print "[Planning] Virtual map updated. Sampling and Solving..."
 
-                # Update virtual team
-                self.virtual_team = [robot]
+                    # Update virtual team
+                    self.virtual_team = [robot]
 
-                # sample observable position according to the virtual map
-                self.points = self.virtual_utility_map.sampled_points( \
-                    self.sampling, min_dist = MIN_SAMPLING_DIST )
+                    # sample observable position according to the virtual map
+                    self.points = self.virtual_utility_map.sampled_points( \
+                        self.sampling, min_dist = MIN_SAMPLING_DIST )
 
-                # sample position for <robot>
-                robot.sample_positions( self.virtual_utility_map, self.points, \
-                        self.period )
+                    # sample position for <robot>
+                    robot.sample_positions( self.virtual_utility_map, self.points, \
+                            self.period )
 
-                # find a suitable plan for <robot>
-                self.decentrally_solve(milp_formulation)
+                    # find a suitable plan for <robot>
+                    self.decentrally_solve(milp_formulation, available_comlinks)
+
+                    if robot.plan:
+                        available_comlinks.append( (robot, robot.plan[-1]) )
 
         # gather plans
         if DISPLAY:
