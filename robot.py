@@ -55,6 +55,12 @@ class Robot:
         self.plan       = []
         self.old_plans  = []
 
+    """ Tell if a comlink can be potentially etablished with position q from
+    position p. """
+    def comlink(self,p,q):
+        d = self.accessibility_map.euclidian_distance_pix2meters(p,q)
+        return d <= self.comlink_range
+
     """ Sample the accessible positions (= the search space for potential
     plans). To do so, optionnaly compute a intermediary
     <weighted_accessibility_map> weighted by the robot sensor (this can take
