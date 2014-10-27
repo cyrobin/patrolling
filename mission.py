@@ -320,6 +320,23 @@ class Mission:
 
             color += 1
 
+        # Display comlinks
+        mark = None
+        for robot in self.team:
+            for partner in self.team:
+                if robot == partner:
+                    continue
+
+                p = robot.pose[0:2]
+                q = partner.pose[0:2]
+                if robot.comlink(p,q)*partner.comlink(q,p):
+                    x,y = zip(*[p,q])
+                    mark = plt.plot(y,x, color = COM_COLOR, linestyle=":", linewidth = 3.0)
+
+        if mark:
+            labels.append( "Com links" )
+            marks.append(  mark[0] )
+
         # Caption
         self.ax.legend(marks,labels,bbox_to_anchor=(-.1,0.9), loc=0 )
         #ax.legend(marks,labels, bbox_to_anchor=(0., 1.02, 1., .102), loc=3,\
