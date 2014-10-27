@@ -6,6 +6,11 @@ Gather the shared constant and the empirically set parameters
 """
 
 # Display
+# TODO Change VERBOSE to VERBOSITY_LEVEL
+#   0 = nothing
+#   1 = dumped files and log (log = data entry and firal stats ?) (?)
+#   2 = current VERBOSE = False
+#   3 = current VERBOSE = True
 VERBOSE=False
 #VERBOSE=True
 
