@@ -32,8 +32,8 @@ class UtilityMap(Geomap):
 
         # Performance metrics
         self.size = sum( [1 for (q,w) in enumerate(self.utility_growth_mask.flat) if w >0 ] )
-        if VERBOSE:
-            print "{} observable positions are monitored.".format(self.size)
+        if VERBOSITY_LEVEL > 2:
+            print "[UtilityMap] {} observable positions are monitored.".format(self.size)
 
         max_utility = 100
         sum_utility = np.sum( self.image, dtype = np.int64 )
@@ -88,19 +88,27 @@ class UtilityMap(Geomap):
         self.past_average_utilities.append( average_utility )
 
     """ Display various metrics """
-    # TODO TO BE COMPLETED
+    # TODO TO BE COMPLETED (standard deviation, etc.)
     def print_metrics(self):
-        print "Max utility over time is {} (out of {}).".format( \
-            max(self.past_max_utilities), self.past_max_utilities )
 
-        print "Max average of utilities over time is {} (out of {}).".format( \
-            max(self.past_average_utilities), self.past_average_utilities )
+        # TODO log this
+        #if VERBOSITY_LEVEL > 0:
 
-        print "Worst average utility evolution over time is {} (out of {}).".format( \
-                max(self.past_average_diff_utilities[1:]), self.past_average_diff_utilities )
+        if VERBOSITY_LEVEL > 1:
+            print "[UtilityMap:metrics] Max utility over time is {}, out of:".format( \
+                max(self.past_max_utilities))
+            print self.past_max_utilities
 
-        print "Best average utility evolution over time is {} (out of {}).".format( \
-                min(self.past_average_diff_utilities[1:]), self.past_average_diff_utilities )
-        # Also : evolution, standard deviation, etc.
+            print "[UtilityMap:metrics] Max average of utilities over time is {}, out of:".format( \
+                max(self.past_average_utilities))
+            print self.past_average_utilities
+
+            print "[UtilityMap:metrics] Worst average utility evolution over time is {}, out of:".format( \
+                    max(self.past_average_diff_utilities[1:]))
+            print self.past_average_diff_utilities
+
+            print "[UtilityMap:metrics] Best average utility evolution over time is {}, out of:".format( \
+                    min(self.past_average_diff_utilities[1:]))
+            print self.past_average_diff_utilities
 
 

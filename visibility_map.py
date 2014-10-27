@@ -78,7 +78,7 @@ class VisibilityMap(Geomap):
         try:
             sensor_model = available_sensor_models[name](coef)
         except KeyError:
-            raise ValueError('Unknown sensor name. Please choose another model.')
+            raise ValueError('[VisibilityMap] Unknown sensor name. Please choose another model.')
 
         return sensor_model
 

@@ -79,7 +79,7 @@ class Mission:
         try:
             solver = available_milp_formulation[ milp_formulation ]
         except KeyError:
-            print "!ERROR! '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
+            print "!ERROR! [Mission:solve] '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
         else:
             solver(self.team, self.utility_map, self.points, self.period)
 
@@ -104,24 +104,27 @@ class Mission:
             self.solve(milp_formulation)
 
         if DISPLAY:
-            if VERBOSE:
+            if VERBOSITY_LEVEL > 2:
                 for robot in self.team:
                     robot.display_weighted_map()
             self.display_situation()
 
-        self.dump_situation()
+        if VERBOSITY_LEVEL > 0:
+            self.dump_situation()
 
     """ Update the mission according to current plan (utility map and robots's
     poses) """
     def update(self):
 
-        if VERBOSE:
-            print "Updating..."
+        if VERBOSITY_LEVEL > 2:
+            print "[Mission] Updating..."
         self.count_periods += 1
 
         self.update_map()
         self.update_poses()
-        print "Patrolling -- Period #{} begins.".format(self.count_periods)
+
+        if VERBOSITY_LEVEL > 1:
+            print "[Mission] Patrolling -- Period #{} begins.".format(self.count_periods)
 
     """ Update the robots poses according to <p>, a vector of positions. If no
     <p> is provided, then use the current robot's plan and set the pose to the
@@ -150,7 +153,7 @@ class Mission:
         try:
             solver = available_milp_formulation[ milp_formulation ]
         except KeyError:
-            print "!ERROR! '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
+            print "!ERROR! [Mission:solve] '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
         else:
             solver(self.virtual_team, self.virtual_utility_map, \
                     self.points, self.period, available_comlinks)
@@ -176,7 +179,7 @@ class Mission:
         # Plan for one robot at a time, considering the impact of the robots
         # that have already planned something for this period
         # TODO change the planning order to a more smart way
-        with Timer('[Planning the whole decentralized loop'):
+        with Timer('Planning the whole decentralized loop'):
             self.virtual_team = []
             available_comlinks= []
             for robot in self.team:
@@ -185,7 +188,7 @@ class Mission:
                     # according to the plan of the precedent virtual team)
                     self.virtual_utility_map.update_utility( self.virtual_team )
 
-                    if VERBOSE:
+                    if VERBOSITY_LEVEL > 2:
                         print "[Planning] Virtual map updated. Sampling and Solving..."
 
                     # Update virtual team
@@ -207,15 +210,15 @@ class Mission:
 
         # gather plans
         if DISPLAY:
-            if VERBOSE:
+            if VERBOSITY_LEVEL > 2:
                 for robot in self.team:
                     robot.display_weighted_map()
             self.display_situation()
 
-        self.dump_situation()
+        if VERBOSITY_LEVEL > 0:
+            self.dump_situation()
 
     """ Display various metrics """
-    # TODO TO BE COMPLETED (data about robots ?!)
     def print_metrics(self):
         self.utility_map.print_metrics()
 
@@ -271,7 +274,7 @@ class Mission:
                     marks.append(  mark )
 
                 # Visibility (sensed areas)
-                if VERBOSE:
+                if VERBOSITY_LEVEL > 2:
                     sensor_x_range = self.utility_map.length_meter2pix_x( robot.sensor_range )
                     sensor_y_range = self.utility_map.length_meter2pix_y( robot.sensor_range )
 
@@ -347,12 +350,14 @@ class Mission:
         if DUMP:
             figname = "{}_{}-{:03d}.svg".format(self.name, self.time_stamps, self.count_periods)
             plt.savefig(figname,bbox_inches='tight')
-            print "Figure save as {}".format(figname)
+            if VERBOSITY_LEVEL > 1:
+                print "[Mission] Figure save as {}".format(figname)
             plt.clf()
             plt.cla()
         else:
             plt.show()
-            print "Display done."
+            if VERBOSITY_LEVEL > 1:
+                print "Display done."
 
     # TODO Dump geomap (as a distribution of probability)
 
@@ -457,7 +462,8 @@ def loaded_mission(mission_file):
             robot_data.update( json.load( json_robot ) )
             json_robot.close()
 
-    if VERBOSE:
+    if VERBOSITY_LEVEL > 2:
+        print "[Mission] Job description :"
         pprint(mission)
 
     return mission

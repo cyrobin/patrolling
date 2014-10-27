@@ -5,14 +5,12 @@ Gather the shared constant and the empirically set parameters
 (and also some magic numbers)
 """
 
-# Display
-# TODO Change VERBOSE to VERBOSITY_LEVEL
-#   0 = nothing
-#   1 = dumped files and log (log = data entry and firal stats ?) (?)
-#   2 = current VERBOSE = False
-#   3 = current VERBOSE = True
-VERBOSE=False
-#VERBOSE=True
+# Display, dump/log, and verbosity level:
+#   0 = nothing but errors (no warnings)
+#   1 = dumped files + log (= data entry & final stats) + warnings
+#   2 = additional textual output (timers, main steps, etc.)
+#   3 = talkactive level
+VERBOSITY_LEVEL = 1
 
 FSIZE = (12,12) # plot (figure size)
 OBS_COLOR = 'green'

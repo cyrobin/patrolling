@@ -11,6 +11,7 @@ Usage :
 """
 
 import time
+from constant import *
 
 class Timer(object):
     def __init__(self, name=None):
@@ -20,7 +21,8 @@ class Timer(object):
         self.tstart = time.time()
 
     def __exit__(self, type, value, traceback):
-        if self.name:
-            print '[%s]' % self.name,
-        print 'Elapsed: %s s' % (time.time() - self.tstart)
+        if VERBOSITY_LEVEL > 1:
+            if self.name:
+                print '[%s]' % self.name,
+            print 'Elapsed: %s s' % (time.time() - self.tstart)
 

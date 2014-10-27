@@ -134,13 +134,12 @@ class Robot:
     sampled positions."""
     def update_pose(self, p=None):
         if p:
-            print "Yes !"
             self.pose = p
         elif self.plan:
             (x,y) = self.plan[-1] # plan is 2D
             (z,t) = self.pose[2:4] # plan is 2D
             self.pose = (x,y,z,t)
-        # else do nothing
+        #else: do nothing
 
         # Deal with (no longer valid) past path and sampled positions
         self.old_plans.append(self.plan)
@@ -148,10 +147,8 @@ class Robot:
         self.points = []
         self.paths  = []
 
-        if VERBOSE:
-            print "{} new pose is {}".format(self.name,self.pose)
-
-    # TODO store / compute plans
+        if VERBOSITY_LEVEL > 2:
+            print "[{}:update_pose] new pose is {}".format(self.name,self.pose)
 
     """ Display the wmap """
     def display_weighted_map(self):

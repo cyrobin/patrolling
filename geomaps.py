@@ -24,7 +24,7 @@ class Geomap:
         self.meta    = self.geotiff.GetMetadata()
 
         if not 'CUSTOM_X_ORIGIN' in self.meta:
-            print('error: %s.aux.xml missing' % self.geofile)
+            print('!ERROR! [Geomap] %s.aux.xml missing' % self.geofile)
             exit(1)
 
         self.tf      = self.geotiff.GetGeoTransform()
@@ -39,8 +39,8 @@ class Geomap:
         self.custom_x_origin = float(self.meta['CUSTOM_X_ORIGIN'])
         self.custom_y_origin = float(self.meta['CUSTOM_Y_ORIGIN'])
 
-        if VERBOSE:
-            print "Image is {}x{}".format(self.width,self.height)
+        if VERBOSITY_LEVEL > 2:
+            print "[Geomap] Image is {}x{}".format(self.width,self.height)
 
     """ Check the scale, origin and size coherence between two geomaps.
     If it failt, throw an exception (ValueError)."""
@@ -94,6 +94,8 @@ class Geomap:
                 try:
                     (x,y) = np.unravel_index( idx, (h, w) )
                 except ValueError:
+                    if VERBOSITY_LEVEL > 2:
+                        print "!WARNING! [Geomap:sampled_points] Index value out of bounds."
                     continue
                 p = (x+xmin, y+ymin)
                 if _not_too_close(p, points):
@@ -105,9 +107,10 @@ class Geomap:
                     points.append(p)
                     i+=1
 
-        if (time.time() - t_start) > SAMPLING_TIME_OUT :
-            print "!WARNING! Sampling timed out ({} / {} points sampled)".format( \
-                    len(points), n )
+        if VERBOSITY_LEVEL > 0 and \
+                (time.time() - t_start) > SAMPLING_TIME_OUT :
+            print "!WARNING! [Geomap:sampled_poinst] Sampling timed out ({} / {} points sampled)".format( \
+                len(points), n )
 
         return points
 

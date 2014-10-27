@@ -93,7 +93,8 @@ class GLPKSolver:
 
         else:
             # When there is no available comlink, assume global com is available
-            print "!WARNING! No comlink available: assume full communication links instead."
+            if VERBOSITY_LEVEL > 0:
+                print "!WARNING! [Planning] No comlink available: assume full communication links instead."
             g = { (r,p): 1 for r in R for p in N[r] }
 
         # Pymprog init and option
@@ -103,7 +104,7 @@ class GLPKSolver:
         # or  http://www.cnd.mcgill.ca/~ivan/it_ineq_script/python%20LP%20solvers/pympl.4.2/Doc/solvopt.rst
         #pb.solvopt(method='exact', verbosity=2) # seems less efficient
         pb.solvopt(tm_lim=SOLVER_TIME_OUT,verbosity=2)
-        if VERBOSE:
+        if VERBOSITY_LEVEL > 2:
             print "Solver options: {}".format( pb.solvopt() )
 
         # DECISION VARIABLES
@@ -145,7 +146,7 @@ class GLPKSolver:
         pb.st( [ plan_cost[r] <= T for r in R ], 'maximal cost allowed')
         pb.st( [ sum( r.cost(p,q)*x[r,p,q] for p in N[r] for q in N[r]) <= plan_cost[r] for r in R ], 'compute plan cost')
 
-        if VERBOSE:
+        if VERBOSITY_LEVEL > 2:
             print "[Planning] GLPK: init done. Solving..."
 
         # OBJECTIVE
@@ -153,9 +154,10 @@ class GLPKSolver:
 
         pb.solve() #solve the TOP problem
 
-        print "[Planning] GLPK Solver status:",pb.status()
+        if VERBOSITY_LEVEL > 1:
+            print "[Planning] GLPK Solver status:",pb.status()
         # Report Karush-Kuhn-Tucker optimality conditions (= error bounds)
-        if VERBOSE:
+        if VERBOSITY_LEVEL > 2:
             print pb.reportKKT()
 
         # Retrieve solution
@@ -168,12 +170,13 @@ class GLPKSolver:
                     if p == curr and x[r,p,q].primal ==  1:
                         curr = q
                         r.plan.append(curr)
-            if VERBOSE:
-                print "{} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
+            if VERBOSITY_LEVEL > 2:
+                print "[Planning] {} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
+                print r.plan
 
-        if pb.status() == 'undef':
+        if VERBOSITY_LEVEL > 0 and pb.status() == 'undef':
             print "!WARNING! NO SOLUTION found by the GLPK solver so far."
-        else:
+        elif VERBOSITY_LEVEL > 1:
             print "[Planning] Gathered utility = %.2f" % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
             print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
@@ -221,7 +224,8 @@ class GLPKSolver:
 
         else:
             # When there is no available comlink, assume global com is available
-            print "!WARNING! No comlink available: assume full communication links instead."
+            if VERBOSITY_LEVEL > 0:
+                print "!WARNING! [Planning] No comlink available: assume full communication links instead."
             g = { (r,p): 1 for r in R for p in N[r] }
 
         # Pymprog init and option
@@ -231,7 +235,7 @@ class GLPKSolver:
         # or  http://www.cnd.mcgill.ca/~ivan/it_ineq_script/python%20LP%20solvers/pympl.4.2/Doc/solvopt.rst
         #pb.solvopt(method='exact', verbosity=2) # seems less efficient
         pb.solvopt(tm_lim=SOLVER_TIME_OUT,verbosity=2)
-        if VERBOSE:
+        if VERBOSITY_LEVEL > 2:
             print "Solver options: {}".format( pb.solvopt() )
 
         # DECISION VARIABLES
@@ -299,7 +303,7 @@ class GLPKSolver:
         # = determine which v is equal to one (= which one  the best observation)
         pb.st( [ y[q] <= ( sum(x[r,p2,p] * r.sensor(p,q) for p2 in N[r] )  + C*(1 - v[q,(r,p)]) ) for q in Q for (r,p) in M ], 'Define best observation')
 
-        if VERBOSE:
+        if VERBOSITY_LEVEL > 2:
             print "[Planning] GLPK: init done. Solving..."
 
         # OBJECTIVE
@@ -307,9 +311,11 @@ class GLPKSolver:
         pb.max( sum( u[q]*y[q] for q in Q) - sum( self.cost_penalty*plan_cost[r] for r in R), 'utility' )
 
         pb.solve() #solve the TOP problem
-        print "[Planning] GLPK Solver status:",pb.status()
+
+        if VERBOSITY_LEVEL > 1:
+            print "[Planning] GLPK Solver status:",pb.status()
         # Report Karush-Kuhn-Tucker optimality conditions (= error bounds)
-        if VERBOSE:
+        if VERBOSITY_LEVEL > 2:
             print pb.reportKKT()
 
         # Retrieve solution
@@ -322,12 +328,13 @@ class GLPKSolver:
                     if p == curr and x[r,p,q].primal ==  1:
                         curr = q
                         r.plan.append(curr)
-            if VERBOSE:
-                print "{} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
+            if VERBOSITY_LEVEL > 2:
+                print "[Planning] {} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
+                print r.plan
 
-        if pb.status() == 'undef':
+        if VERBOSITY_LEVEL > 0 and pb.status() == 'undef':
             print "!WARNING! NO SOLUTION found by the GLPK solver so far."
-        else:
+        elif VERBOSITY_LEVEL > 1:
             print "[Planning] Gathered utility = %.2f (out of %.2f)" %  ( sum(u[q]*y[q].primal for q in Q) , sum( u[q] for q in Q) )
             print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
