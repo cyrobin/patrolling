@@ -19,19 +19,21 @@ if __name__ == "__main__":
         mission =  Mission (  json_mission )
 
     print "Starting Loop !"
-    #mission.loop_once('Perception-based TSP')
-    #mission.loop(10,True,'Perception-based TSP')
+    #mission.loop(20,False,'Perception-based TSP')
+    #mission.loop(10,False,'Perception-based TOP')
 
-    #mission.decentralized_loop_once()
-    mission.decentralized_loop(5,False,'Perception-based TSP')
+    mission.decentralized_loop(20,False,'Perception-based TSP')
 
-    print "Updating..."
-    mission.update()
-    mission.dump_situation()
+    #mission.sample_objective()
+    #mission.sample_all_positions()
     #for robot in mission.team:
         #robot.display_weighted_map()
-    mission.display_situation()
+    #mission.display_situation()
 
+    print "Last update..."
+    mission.update()
+    mission.dump_situation()
+    mission.display_situation()
     mission.print_metrics()
 
     print "Done."
