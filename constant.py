@@ -6,9 +6,9 @@ Gather the shared constant and the empirically set parameters
 """
 
 # Display, dump/log, and verbosity level:
-#   0 = nothing but errors (no warnings)
-#   1 = dumped files + log (= data entry & final stats) + warnings
-#   2 = additional textual output (timers, main steps, etc.)
+#   0 = no output but errors (no warnings)
+#   1 = dumped files + log (no out on std::out ; no warnings)
+#   2 = additional textual output (warnings, timers, main steps, etc.)
 #   3 = talkactive level
 VERBOSITY_LEVEL = 1
 

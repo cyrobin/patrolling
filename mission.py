@@ -32,6 +32,8 @@ class Mission:
         self.mission     = _mission
         self.name        = self.mission[u'name']
         self.time_stamps = time.strftime("%Y-%m-%d_%H:%M:%S")
+        self.logfile     = "{}_{}.log".format(self.name, self.time_stamps)
+
         self.sampling    = N_SAMPLED_OBS
         self.period      = self.mission[u'period']
         self.utility_map_file = self.mission[u'map']
@@ -53,6 +55,15 @@ class Mission:
         self.count_periods = 0
 
         self.fig,self.ax = plt.subplots( figsize = FSIZE )
+
+        if VERBOSITY_LEVEL > 0:
+            with open(self.logfile,"a") as log:
+                log.write( "log: {}\n".format(self.logfile) )
+                pprint( self.mission, log )
+                log.write( "Sampling observation: {}\n".format(self.sampling) )
+
+            if VERBOSITY_LEVEL > 1:
+                print "[Mission] logfile is {}".format(self.logfile)
 
     """ Sample the observable positions (= the objective).
     Assume that the map is a distribution of probabilily,
