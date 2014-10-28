@@ -28,7 +28,6 @@ class Mission:
     """ Init a mission upon a descriptive dictionary <mission>.
     This dictionary can be obtain through the load_mission function. """
     def __init__(self, _mission):
-
         self.mission     = _mission
         self.name        = self.mission[u'name']
         self.time_stamps = time.strftime("%Y-%m-%d_%H:%M:%S")
@@ -70,7 +69,6 @@ class Mission:
     e.g the value are the utility. The sampled points are far apart, with a
     minimal distance (in meters) between them. """
     def sample_objective(self):
-
         self.points = self.utility_map.sampled_points( self.sampling, \
                 min_dist = MIN_SAMPLING_DIST )
 
@@ -79,66 +77,9 @@ class Mission:
         for robot in self.team:
             robot.sample_positions( self.utility_map, self.points, self.period )
 
-    """ Solve (using glpk) """
-    def solve(self, milp_formulation = 'Perception-based TSP'):
-        available_milp_formulation = {
-            'Perception-based TSP': self.solver.solve_perception_tsp,
-            'Position-based TSP'  : self.solver.solve_position_tsp,
-            'Perception-based TOP': self.solver.solve_ptop,
-        }
-
-        try:
-            solver = available_milp_formulation[ milp_formulation ]
-        except KeyError:
-            print "!ERROR! [Mission:solve] '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
-        else:
-            solver(self.team, self.utility_map, self.points, self.period)
-
-    """ Perform one whole planning loop, <n> times. """
-    def loop(self, n, DISPLAY = False, milp_formulation='Perception-based TSP'):
-
-        for i in range(n):
-            self.loop_once(DISPLAY, milp_formulation)
-
-        self.update()
-        self.dump_situation()
-
-        if VERBOSITY_LEVEL > 0:
-            with open(self.logfile,"a") as log:
-                log.write("Global plan after {} periods:\n".format( self.count_periods-1 ) )
-                for robot in self.team:
-                    log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
-                    log.write( "{}\n".format( robot.old_plans ) )
-
-        self.print_metrics(self.logfile)
-
-    """ Perform one whole planning loop. """
-    def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TSP'):
-
-        with Timer('Updating poses and utility map'):
-            self.update()
-
-        with Timer('Sampling observable points'):
-            self.sample_objective()
-        with Timer('Sampling positions'):
-            self.sample_all_positions()
-
-        with Timer('Solving'):
-            self.solve(milp_formulation)
-
-        if DISPLAY:
-            if VERBOSITY_LEVEL > 2:
-                for robot in self.team:
-                    robot.display_weighted_map()
-            self.display_situation()
-
-        if VERBOSITY_LEVEL > 0:
-            self.dump_situation()
-
     """ Update the mission according to current plan (utility map and robots's
     poses) """
     def update(self):
-
         if self.count_periods > 0:
             if VERBOSITY_LEVEL > 2:
                 print "[Mission] Updating..."
@@ -169,10 +110,64 @@ class Mission:
             for robot in self.team:
                 robot.update_pose()
 
-    """ Update the utility map according to robots'plans and natural growth due
+    """ Update the utility map according to robots' plans and natural growth due
     to idleness (= absence of observation for a while)"""
     def update_map(self):
         self.utility_map.update_utility( self.team )
+
+    """ Solve (using glpk) """
+    def solve(self, milp_formulation = 'Perception-based TSP'):
+        available_milp_formulation = {
+            'Perception-based TSP': self.solver.solve_perception_tsp,
+            'Position-based TSP'  : self.solver.solve_position_tsp,
+            'Perception-based TOP': self.solver.solve_ptop,
+        }
+
+        try:
+            solver = available_milp_formulation[ milp_formulation ]
+        except KeyError:
+            print "!ERROR! [Mission:solve] '{}' is not a known MILP formulation. Problem remains unsolved.".format(milp_formulation)
+        else:
+            solver(self.team, self.utility_map, self.points, self.period)
+
+    """ Perform one whole planning loop, <n> times. """
+    def loop(self, n, DISPLAY = False, milp_formulation='Perception-based TSP'):
+        for i in range(n):
+            self.loop_once(DISPLAY, milp_formulation)
+
+        self.update()
+        self.dump_situation()
+
+        if VERBOSITY_LEVEL > 0:
+            with open(self.logfile,"a") as log:
+                log.write("Global plan after {} periods:\n".format( self.count_periods-1 ) )
+                for robot in self.team:
+                    log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
+                    log.write( "{}\n".format( robot.old_plans ) )
+
+        self.print_metrics(self.logfile)
+
+    """ Perform one whole planning loop. """
+    def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TSP'):
+        with Timer('Updating poses and utility map'):
+            self.update()
+
+        with Timer('Sampling observable points'):
+            self.sample_objective()
+        with Timer('Sampling positions'):
+            self.sample_all_positions()
+
+        with Timer('Solving'):
+            self.solve(milp_formulation)
+
+        if DISPLAY:
+            if VERBOSITY_LEVEL > 2:
+                for robot in self.team:
+                    robot.display_weighted_map()
+            self.display_situation()
+
+        if VERBOSITY_LEVEL > 0:
+            self.dump_situation()
 
     """ Decentrally solve (using glpk) """
     def decentrally_solve(self, milp_formulation = 'Perception-based TSP',
@@ -274,7 +269,6 @@ class Mission:
     def display_situation(self, DUMP = False):
         # Beware of the axis-inversion (y,x) spotted empirically
         # when plotting points, axis, and so on
-
         imgplot = plt.imshow(self.utility_map.image)
         imgplot.set_cmap('gray')
         plt.colorbar() #  Utility
