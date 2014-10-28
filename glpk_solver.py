@@ -93,7 +93,7 @@ class GLPKSolver:
 
         else:
             # When there is no available comlink, assume global com is available
-            if VERBOSITY_LEVEL > 0:
+            if VERBOSITY_LEVEL > 1:
                 print "!WARNING! [Planning] No comlink available: assume full communication links instead."
             g = { (r,p): 1 for r in R for p in N[r] }
 
@@ -174,11 +174,12 @@ class GLPKSolver:
                 print "[Planning] {} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
                 print r.plan
 
-        if VERBOSITY_LEVEL > 0 and pb.status() == 'undef':
-            print "!WARNING! NO SOLUTION found by the GLPK solver so far."
-        elif VERBOSITY_LEVEL > 1:
-            print "[Planning] Gathered utility = %.2f" % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
-            print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
+        if VERBOSITY_LEVEL > 1:
+            if pb.status() == 'undef':
+                print "!WARNING! NO SOLUTION found by the GLPK solver so far."
+            else:
+                print "[Planning] Gathered utility = %.2f" % sum( u[r,j]*x[r,i,j].primal for r,i,j in E)
+                print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
         # Return status:
         # - feas = solution found (but no necessary optimal)
@@ -224,7 +225,7 @@ class GLPKSolver:
 
         else:
             # When there is no available comlink, assume global com is available
-            if VERBOSITY_LEVEL > 0:
+            if VERBOSITY_LEVEL > 1:
                 print "!WARNING! [Planning] No comlink available: assume full communication links instead."
             g = { (r,p): 1 for r in R for p in N[r] }
 
@@ -332,11 +333,12 @@ class GLPKSolver:
                 print "[Planning] {} ({} chekpoints) : {}".format(r.name,len(r.plan),r.plan)
                 print r.plan
 
-        if VERBOSITY_LEVEL > 0 and pb.status() == 'undef':
-            print "!WARNING! NO SOLUTION found by the GLPK solver so far."
-        elif VERBOSITY_LEVEL > 1:
-            print "[Planning] Gathered utility = %.2f (out of %.2f)" %  ( sum(u[q]*y[q].primal for q in Q) , sum( u[q] for q in Q) )
-            print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
+        if VERBOSITY_LEVEL > 1:
+            if pb.status() == 'undef':
+                print "!WARNING! NO SOLUTION found by the GLPK solver so far."
+            else:
+                print "[Planning] Gathered utility = %.2f (out of %.2f)" %  ( sum(u[q]*y[q].primal for q in Q) , sum( u[q] for q in Q) )
+                print "[Planning] for a Global cost = %.2f " % sum(plan_cost[r].primal for r in R )
 
         # Return status:
         # - opt = an optimal integer solution has been found !

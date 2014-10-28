@@ -107,7 +107,7 @@ class Geomap:
                     points.append(p)
                     i+=1
 
-        if VERBOSITY_LEVEL > 0 and \
+        if VERBOSITY_LEVEL > 1 and \
                 (time.time() - t_start) > SAMPLING_TIME_OUT :
             print "!WARNING! [Geomap:sampled_poinst] Sampling timed out ({} / {} points sampled)".format( \
                 len(points), n )
