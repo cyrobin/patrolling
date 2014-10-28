@@ -23,7 +23,8 @@ if __name__ == "__main__":
     #mission.loop(10,False,'Perception-based TOP')
 
     #mission.decentralized_loop(20,False,'Perception-based TSP')
-    mission.decentralized_loop(2,False,'Perception-based TSP')
+
+    mission.parallel_loop(20,False,'Perception-based TSP')
 
     #mission.sample_objective()
     #mission.sample_all_positions()

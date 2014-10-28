@@ -257,6 +257,74 @@ class Mission:
         if VERBOSITY_LEVEL > 0:
             self.dump_situation()
 
+    """ Perform one whole decentralized parallely planning loop, <n> times. """
+    def parallel_loop(self, n, DISPLAY = False, \
+            milp_formulation='Perception-based TSP'):
+
+        for i in range(n):
+            self.parallel_loop_once(DISPLAY, milp_formulation)
+
+        self.update()
+        self.dump_situation()
+
+        if VERBOSITY_LEVEL > 0:
+            with open(self.logfile,"a") as log:
+                log.write("Global plan after {} periods:\n".format( self.count_periods-1 ) )
+                for robot in self.team:
+                    log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
+                    log.write( "{}\n".format( robot.old_plans ) )
+
+        self.print_metrics(self.logfile)
+
+    """ Perform one whole parallelly planning loop in a decentralized manner. """
+    def parallel_loop_once(self, DISPLAY = False, \
+            milp_formulation = 'Perception-based TSP'):
+
+        with Timer('Updating poses and utility map'):
+            self.update()
+
+        # Plan parallel for all robots at a time, ignoring the others teammates.
+        with Timer('Planning the whole decentralized parallel loop'):
+            #TODO multi-thread this ! See http://www.tutorialspoint.com/python/python_multithreading.htm for instance
+            for robot in self.team:
+
+                # copy map into virtual map which is use to simulate the impact
+                # of other robots while planning for a specific one
+                self.virtual_utility_map = deepcopy(self.utility_map)
+                available_comlinks = []
+                self.virtual_team = []
+
+                with Timer("Planning for {}".format(robot.name)):
+                    # update the virtual map (ie compute what map would be
+                    # according to the plan of the precedent virtual team)
+                    self.virtual_utility_map.update_utility( self.virtual_team )
+
+                    # Update virtual team
+                    self.virtual_team = [robot]
+
+                    # sample observable position according to the virtual map
+                    self.points = self.virtual_utility_map.sampled_points( \
+                        self.sampling, min_dist = MIN_SAMPLING_DIST )
+
+                    # sample position for <robot>
+                    robot.sample_positions( self.virtual_utility_map, \
+                        self.points, self.period )
+
+                    # find a suitable plan for <robot>
+                    self.decentrally_solve(milp_formulation, available_comlinks)
+
+        # TODO optimize the plan a posteriori ? (to avoid conflict or limit redundancy ?)
+
+        # gather plans
+        if DISPLAY:
+            if VERBOSITY_LEVEL > 2:
+                for robot in self.team:
+                    robot.display_weighted_map()
+            self.display_situation()
+
+        if VERBOSITY_LEVEL > 0:
+            self.dump_situation()
+
     """ Display various metrics """
     def print_metrics(self,logfile = None):
         self.utility_map.print_metrics(logfile)
@@ -390,7 +458,9 @@ class Mission:
             plt.savefig(figname,bbox_inches='tight')
             if VERBOSITY_LEVEL > 1:
                 print "[Mission] Figure save as {}".format(figname)
-                log.write( "[Mission] Figure save as {}\n".format(figname) )
+            if VERBOSITY_LEVEL > 0:
+                with open(self.logfile,"a") as log:
+                    log.write( "[Mission] Figure save as {}\n".format(figname) )
             plt.clf()
             plt.cla()
         else:
