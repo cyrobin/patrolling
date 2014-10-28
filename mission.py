@@ -100,6 +100,18 @@ class Mission:
         for i in range(n):
             self.loop_once(DISPLAY, milp_formulation)
 
+        self.update()
+        self.dump_situation()
+
+        if VERBOSITY_LEVEL > 0:
+            with open(self.logfile,"a") as log:
+                log.write("Global plan after {} periods:\n".format( self.count_periods-1 ) )
+                for robot in self.team:
+                    log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
+                    log.write( "{}\n".format( robot.old_plans ) )
+
+        self.print_metrics(self.logfile)
+
     """ Perform one whole planning loop. """
     def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TSP'):
 
@@ -127,12 +139,21 @@ class Mission:
     poses) """
     def update(self):
 
-        if VERBOSITY_LEVEL > 2:
-            print "[Mission] Updating..."
-        self.count_periods += 1
+        if self.count_periods > 0:
+            if VERBOSITY_LEVEL > 2:
+                print "[Mission] Updating..."
 
-        self.update_map()
-        self.update_poses()
+            if VERBOSITY_LEVEL > 0:
+                with open(self.logfile,"a") as log:
+                    log.write("Current situation - period #{}\n".format( self.count_periods ) )
+                    for robot in self.team:
+                        log.write( "{}: {}, with plan :\n".format(robot.name,robot.pose) )
+                        log.write( "{}\n".format(robot.plan ) )
+
+            self.update_map()
+            self.update_poses()
+
+        self.count_periods += 1
 
         if VERBOSITY_LEVEL > 1:
             print "[Mission] Patrolling -- Period #{} begins.".format(self.count_periods)
@@ -175,6 +196,18 @@ class Mission:
 
         for i in range(n):
             self.decentralized_loop_once(DISPLAY, milp_formulation)
+
+        self.update()
+        self.dump_situation()
+
+        if VERBOSITY_LEVEL > 0:
+            with open(self.logfile,"a") as log:
+                log.write("Global plan after {} periods:\n".format( self.count_periods-1 ) )
+                for robot in self.team:
+                    log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
+                    log.write( "{}\n".format( robot.old_plans ) )
+
+        self.print_metrics(self.logfile)
 
     """ Perform one whole planning loop in a decentralized manner. """
     def decentralized_loop_once(self, DISPLAY = False, \
@@ -230,8 +263,8 @@ class Mission:
             self.dump_situation()
 
     """ Display various metrics """
-    def print_metrics(self):
-        self.utility_map.print_metrics()
+    def print_metrics(self,logfile = None):
+        self.utility_map.print_metrics(logfile)
 
     """ Dump map, robots, sampled positions and current plans """
     def dump_situation(self):
@@ -363,6 +396,7 @@ class Mission:
             plt.savefig(figname,bbox_inches='tight')
             if VERBOSITY_LEVEL > 1:
                 print "[Mission] Figure save as {}".format(figname)
+                log.write( "[Mission] Figure save as {}\n".format(figname) )
             plt.clf()
             plt.cla()
         else:

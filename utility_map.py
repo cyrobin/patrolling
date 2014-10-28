@@ -89,10 +89,26 @@ class UtilityMap(Geomap):
 
     """ Display various metrics """
     # TODO TO BE COMPLETED (standard deviation, etc.)
-    def print_metrics(self):
+    def print_metrics(self, logfile = None):
 
-        # TODO log this
-        #if VERBOSITY_LEVEL > 0:
+        if VERBOSITY_LEVEL > 0 and logfile:
+            with open(logfile,"a") as log:
+                log.write( "[UtilityMap:metrics] Max utility over time is {}, out of:\n".format( \
+                    max(self.past_max_utilities)) )
+                log.write( "{}\n".format( self.past_max_utilities ) )
+
+                log.write( "[UtilityMap:metrics] Max average of utilities over time is {}, out of:\n".format( \
+                    max(self.past_average_utilities)) )
+                log.write( "{}\n".format( self.past_average_utilities ) )
+
+                log.write( "[UtilityMap:metrics] Worst average utility evolution over time is {}, out of:\n".format( \
+                        max(self.past_average_diff_utilities[1:])) )
+                log.write( "{}\n".format( self.past_average_diff_utilities ) )
+
+                log.write( "[UtilityMap:metrics] Best average utility evolution over time is {}, out of:\n".format( \
+                        min(self.past_average_diff_utilities[1:])) )
+                log.write( "{}\n".format( self.past_average_diff_utilities ) )
+
 
         if VERBOSITY_LEVEL > 1:
             print "[UtilityMap:metrics] Max utility over time is {}, out of:".format( \
