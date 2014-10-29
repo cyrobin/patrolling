@@ -15,10 +15,10 @@ from constant import *
 class Geomap:
     'Class storing geofile data'
 
-    global VERBOSE
-
     """ Load a geofile (tiff + xml description) """
     def __init__(self, geofile):
+        self.geofilename = geofile
+
         # get GeoTiff for scale info
         self.geotiff = gdal.Open(geofile)
         self.meta    = self.geotiff.GetMetadata()
@@ -51,6 +51,45 @@ class Geomap:
           or self.custom_x_origin != geomap.custom_x_origin \
           or self.custom_y_origin != geomap.custom_y_origin :
               raise ValueError("Geomaps does not correspond to each other.")
+
+    """ Save the current change to a new file (the new filename is based on the
+    current date). If needed, the pixel values are linearly scaled to fit
+    between 0 and 255."""
+    def save(self):
+        format = "GTiff"
+        driver = gdal.GetDriverByName( format )
+
+        time_stamps = time.strftime("_%Y-%m-%d_%H:%M:%S")
+        dst_filename = self.geofilename + time_stamps + ".tif"
+
+        if VERBOSITY_LEVEL > 2:
+            print "[Geomap] Save geomap as {}".format(dst_filename)
+
+        src_ds = self.geotiff
+        dst_ds = driver.CreateCopy( dst_filename, src_ds, 0 )
+                                    #[ 'TILED=YES', 'COMPRESS=PACKBITS' ] )
+
+        # Use uint8 ( 0 --> 255 )
+        max_value = np.amax( self.image )
+        if max_value > 255:
+            image = 255 * self.image.copy() / max_value
+            image = self.image.astype(np.uint8, copy=False)
+        else:
+            image = self.image.astype(np.uint8, copy=True)
+
+        dst_ds.GetRasterBand(1).WriteArray( image )
+        # FIXME the lines below are for display (color) purpose, but one should
+        # find betters ways to use them.
+        dst_ds.GetRasterBand(2).WriteArray( image )
+        dst_ds.GetRasterBand(3).WriteArray( image )
+
+        # Once we're done, close properly the dataset (required to complete
+        # writing and flushing the dataset to disk)
+        dst_ds = None
+        src_ds = None
+
+    #raster = numpy.zeros( (512, 512), dtype=numpy.uint8 )
+    #dst_ds.GetRasterBand(1).WriteArray( raster )
 
     """ Sample <n> points in the <geomap>.
     Consider the geomap has a discrete distribution of probability used for the

@@ -145,7 +145,8 @@ class Mission:
                     log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
                     log.write( "{}\n".format( robot.old_plans ) )
 
-        self.print_metrics(self.logfile)
+            self.print_metrics(self.logfile)
+            self.utility_map.save()
 
     """ Perform one whole planning loop. """
     def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TSP'):
@@ -202,7 +203,8 @@ class Mission:
                     log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
                     log.write( "{}\n".format( robot.old_plans ) )
 
-        self.print_metrics(self.logfile)
+            self.print_metrics(self.logfile)
+            self.utility_map.save()
 
     """ Perform one whole planning loop in a decentralized manner. """
     def decentralized_loop_once(self, DISPLAY = False, \
@@ -274,7 +276,8 @@ class Mission:
                     log.write( "{}: {}, with global plan :\n".format(robot.name,robot.pose) )
                     log.write( "{}\n".format( robot.old_plans ) )
 
-        self.print_metrics(self.logfile)
+            self.print_metrics(self.logfile)
+            self.utility_map.save()
 
     """ Perform one whole parallelly planning loop in a decentralized manner. """
     def parallel_loop_once(self, DISPLAY = False, \

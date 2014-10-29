@@ -91,7 +91,7 @@ class UtilityMap(Geomap):
     # TODO TO BE COMPLETED (standard deviation, etc.)
     def print_metrics(self, logfile = None):
 
-        if VERBOSITY_LEVEL > 0 and logfile:
+        if logfile:
             with open(logfile,"a") as log:
                 log.write( "[UtilityMap:metrics] Max utility over time is {}, out of:\n".format( \
                     max(self.past_max_utilities)) )
