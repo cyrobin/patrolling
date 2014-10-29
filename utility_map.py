@@ -102,11 +102,11 @@ class UtilityMap(Geomap):
                 log.write( "{}\n".format( self.past_average_utilities ) )
 
                 log.write( "[UtilityMap:metrics] Worst average utility evolution over time is {}, out of:\n".format( \
-                        max(self.past_average_diff_utilities[1:])) )
+                        max(self.past_average_diff_utilities)) )
                 log.write( "{}\n".format( self.past_average_diff_utilities ) )
 
                 log.write( "[UtilityMap:metrics] Best average utility evolution over time is {}, out of:\n".format( \
-                        min(self.past_average_diff_utilities[1:])) )
+                        min(self.past_average_diff_utilities)) )
                 log.write( "{}\n".format( self.past_average_diff_utilities ) )
 
 
@@ -120,11 +120,11 @@ class UtilityMap(Geomap):
             print self.past_average_utilities
 
             print "[UtilityMap:metrics] Worst average utility evolution over time is {}, out of:".format( \
-                    max(self.past_average_diff_utilities[1:]))
+                    max(self.past_average_diff_utilities))
             print self.past_average_diff_utilities
 
             print "[UtilityMap:metrics] Best average utility evolution over time is {}, out of:".format( \
-                    min(self.past_average_diff_utilities[1:]))
+                    min(self.past_average_diff_utilities))
             print self.past_average_diff_utilities
 
 
