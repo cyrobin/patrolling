@@ -10,7 +10,9 @@ Gather the shared constant and the empirically set parameters
 #   1 = dumped files + log (no out on std::out ; no warnings)
 #   2 = additional textual output (warnings, timers, main steps, etc.)
 #   3 = talkactive level
-VERBOSITY_LEVEL = 1
+VERBOSITY_LEVEL = 2
+
+DISPLAY_COM_LINKS =  False
 
 FSIZE = (12,12) # plot (figure size)
 OBS_COLOR = 'green'
@@ -20,12 +22,12 @@ ROBOT_COLORS = ('cyan','magenta','yellow','purple','darkgoldenrod', \
 
 # Sampling option
 SAMPLING_TIME_OUT = 5 # 5s
-#N_SAMPLED_POS=20 # Number of accessible positions sampled for each robot (see robot.py)
-#N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
+N_SAMPLED_POS=20 # Number of accessible positions sampled for each robot (see robot.py)
+N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
 #N_SAMPLED_POS=6 # Number of accessible positions sampled for each robot (see robot.py)
 #N_SAMPLED_OBS=40 # Number of obsevable points sampled (see mission.py)
-N_SAMPLED_POS=40 # Number of accessible positions sampled for each robot (see robot.py)
-N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
+#N_SAMPLED_POS=40 # Number of accessible positions sampled for each robot (see robot.py)
+#N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
 MIN_SAMPLING_DIST = 5 # see mission.py
 USE_WEIGHTED_MAP = False
 USE_WEIGHTED_MAP = True

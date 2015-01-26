@@ -30,7 +30,7 @@ class Mission:
     def __init__(self, _mission):
         self.mission     = _mission
         self.name        = self.mission[u'name']
-        self.time_stamps = time.strftime("%Y-%m-%d_%H:%M:%S")
+        self.time_stamps = time.strftime("%Y-%m-%d_%Hh%Mm%S")
         self.logfile     = "{}_{}.log".format(self.name, self.time_stamps)
 
         self.sampling    = N_SAMPLED_OBS
@@ -434,16 +434,18 @@ class Mission:
 
         # Display comlinks
         mark = None
-        for robot in self.team:
-            for partner in self.team:
-                if robot == partner:
-                    continue
 
-                p = robot.pose[0:2]
-                q = partner.pose[0:2]
-                if robot.comlink(p,q)*partner.comlink(q,p):
-                    x,y = zip(*[p,q])
-                    mark = plt.plot(y,x, color = COM_COLOR, linestyle=":", linewidth = 3.0)
+        if DISPLAY_COM_LINKS:
+            for robot in self.team:
+                for partner in self.team:
+                    if robot == partner:
+                        continue
+
+                    p = robot.pose[0:2]
+                    q = partner.pose[0:2]
+                    if robot.comlink(p,q)*partner.comlink(q,p):
+                        x,y = zip(*[p,q])
+                        mark = plt.plot(y,x, color = COM_COLOR, linestyle=":", linewidth = 3.0)
 
         if mark:
             labels.append( "Com links" )
@@ -457,7 +459,8 @@ class Mission:
         self.ax.xaxis.set_label_position('top')
 
         if DUMP:
-            figname = "{}_{}-{:03d}.svg".format(self.name, self.time_stamps, self.count_periods)
+            #figname = "{}_{}-{:03d}.svg".format(self.name, self.time_stamps, self.count_periods)
+            figname = "{}_{}-{:03d}.png".format(self.name, self.time_stamps, self.count_periods)
             plt.savefig(figname,bbox_inches='tight')
             if VERBOSITY_LEVEL > 1:
                 print "[Mission] Figure save as {}".format(figname)
