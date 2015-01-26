@@ -59,7 +59,7 @@ class Geomap:
         format = "GTiff"
         driver = gdal.GetDriverByName( format )
 
-        time_stamps = time.strftime("_%Y-%m-%d_%H:%M:%S")
+        time_stamps = time.strftime("_%Y-%m-%d_%Hh%Mm%S")
         dst_filename = self.geofilename + time_stamps + ".tif"
 
         if VERBOSITY_LEVEL > 2:

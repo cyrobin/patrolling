@@ -90,7 +90,6 @@ class UtilityMap(Geomap):
     """ Display various metrics """
     # TODO TO BE COMPLETED (standard deviation, etc.)
     def print_metrics(self, logfile = None):
-
         if logfile:
             with open(logfile,"a") as log:
                 log.write( "[UtilityMap:metrics] Max utility over time is {}, out of:\n".format( \
@@ -126,5 +125,9 @@ class UtilityMap(Geomap):
             print "[UtilityMap:metrics] Best average utility evolution over time is {}, out of:".format( \
                     min(self.past_average_diff_utilities))
             print self.past_average_diff_utilities
+
+    # FIXME the geomaps save does not work (not 3 rasterband ?!)
+    def save(self):
+        print "SAVE UTILITY MAP NOT FIXED YET"
 
 
