@@ -23,6 +23,15 @@ class VisibilityMap(Geomap):
     def built_sensor_model(geomap, name, coef, sensor_range):
 
         """ Here follows sensor models of various quality. """
+        def constant_sensor(coef):
+            def _sensor_model(p,q):
+                d = geomap.euclidian_distance_pix2meters(p,q)
+                if d > sensor_range :
+                    return 0
+                else:
+                    return 1
+            return  _sensor_model
+
         def linear_sensor(coef):
             def _sensor_model(p,q):
                 d = geomap.euclidian_distance_pix2meters(p,q)
@@ -69,6 +78,7 @@ class VisibilityMap(Geomap):
 
         """ This dictionnary lists available sensor models."""
         available_sensor_models = { \
+                'constant'  : constant_sensor,  \
                 'linear'    : linear_sensor,    \
                 'square'    : square_sensor,    \
                 'log'       : log_sensor,       \
