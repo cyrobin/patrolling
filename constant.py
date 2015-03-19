@@ -28,10 +28,11 @@ N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
 #N_SAMPLED_OBS=40 # Number of obsevable points sampled (see mission.py)
 #N_SAMPLED_POS=40 # Number of accessible positions sampled for each robot (see robot.py)
 #N_SAMPLED_OBS=100 # Number of obsevable points sampled (see mission.py)
-MIN_SAMPLING_DIST = 5 # see mission.py
-USE_WEIGHTED_MAP = False
+MIN_SAMPLING_DIST = 5 # for objectives, see mission.py
+MIN_SAMPLING_DIST_ROBOT = 0.5 # for robot's position, % of sensor range ; see robot.py
+#USE_WEIGHTED_MAP = False
 USE_WEIGHTED_MAP = True
-FAST_WEIGHTED_SAMPLING = False
+#FAST_WEIGHTED_SAMPLING = False
 FAST_WEIGHTED_SAMPLING = True
 FAST_WEIGHTED_SAMPLING_FACTOR = 10
 

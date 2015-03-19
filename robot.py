@@ -98,7 +98,8 @@ class Robot:
         if use_weight and FAST_WEIGHTED_SAMPLING:
             positions = self.weighted_accessibility_map.sampled_points( \
                 FAST_WEIGHTED_SAMPLING_FACTOR*N_SAMPLED_POS, \
-                min_dist = 0.5*self.sensor_range, \
+                #min_dist = 0.5*self.sensor_range, \
+                min_dist = MIN_SAMPLING_DIST_ROBOT*self.sensor_range, \
                 area = [(xmin,ymin),(xmax,ymax)] )
 
             def get_weight(p):
@@ -110,7 +111,8 @@ class Robot:
         else:
             self.points = self.weighted_accessibility_map.sampled_points( \
                 N_SAMPLED_POS, \
-                min_dist = 0.5*self.sensor_range, \
+                #min_dist = 0.5*self.sensor_range, \
+                min_dist = MIN_SAMPLING_DIST_ROBOT*self.sensor_range, \
                 area = [(xmin,ymin),(xmax,ymax)] )
 
         # Add the current position (which is obviously valid !)
