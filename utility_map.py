@@ -32,14 +32,15 @@ class UtilityMap(Geomap):
         self.period = period # period of one run
 
         # Performance metrics
-        self.size = sum( [1 for (q,w) in enumerate(self.utility_growth_mask.flat) if w >0 ] )
+        # Number of cell with actual utility (= growth_mask > 0)
+        self.n_utility = sum( [1 for (q,w) in enumerate(self.utility_growth_mask.flat) if w >0 ] )
         if VERBOSITY_LEVEL > 2:
-            print "[UtilityMap] {} observable positions are monitored.".format(self.size)
+            print "[UtilityMap] {} observable positions are monitored.".format(self.n_utility)
 
         max_utility = 100
         sum_utility = np.sum( self.image, dtype = np.int64 )
         average_diff_utility = 0
-        average_utility = sum_utility / self.size
+        average_utility = sum_utility / self.n_utility
 
         self.past_max_utilities     = [ max_utility     ]
         self.past_sum_utilities     = [ sum_utility     ]
@@ -53,7 +54,7 @@ class UtilityMap(Geomap):
 
         # Copy of UtilityMap attributes
         my_copy.utility_growth_mask         = deepcopy(self.utility_growth_mask)
-        my_copy.size                        = deepcopy(self.size)
+        my_copy.n_utility                       = deepcopy(self.n_utility)
         my_copy.past_max_utilities          = deepcopy(self.past_max_utilities)
         my_copy.past_sum_utilities          = deepcopy(self.past_sum_utilities)
         my_copy.past_average_utilities      = deepcopy(self.past_average_utilities)
@@ -80,8 +81,8 @@ class UtilityMap(Geomap):
         # Update performance metrics
         max_utility     = np.amax(self.image)
         sum_utility     = np.sum( self.image, dtype = np.int64 )
-        average_diff_utility    = (sum_utility - np.int64(self.past_sum_utilities[-1])) / self.size
-        average_utility = sum_utility / self.size
+        average_diff_utility    = (sum_utility - np.int64(self.past_sum_utilities[-1])) / self.n_utility
+        average_utility = sum_utility / self.n_utility
 
         self.past_max_utilities.append( max_utility )
         self.past_sum_utilities.append( sum_utility )
