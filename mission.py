@@ -116,11 +116,11 @@ class Mission:
         self.utility_map.update_utility( self.team )
 
     """ Solve (using glpk) """
-    def solve(self, milp_formulation = 'Perception-based TSP'):
+    def solve(self, milp_formulation = 'Perception-based TOP'):
         available_milp_formulation = {
-            'Perception-based TSP': self.solver.solve_perception_tsp,
-            'Position-based TSP'  : self.solver.solve_position_tsp,
-            'Perception-based TOP': self.solver.solve_ptop,
+            'Perception-based TOP': self.solver.solve_perception_top,
+            'Position-based TOP'  : self.solver.solve_position_top,
+            'SP': self.solver.solve_sp,
         }
 
         try:
@@ -131,7 +131,7 @@ class Mission:
             solver(self.team, self.utility_map, self.points, self.period)
 
     """ Perform one whole planning loop, <n> times. """
-    def loop(self, n, DISPLAY = False, milp_formulation='Perception-based TSP'):
+    def loop(self, n, DISPLAY = False, milp_formulation='Perception-based TOP'):
         for i in range(n):
             self.loop_once(DISPLAY, milp_formulation)
 
@@ -149,7 +149,7 @@ class Mission:
             self.utility_map.save()
 
     """ Perform one whole planning loop. """
-    def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TSP'):
+    def loop_once(self, DISPLAY=False, milp_formulation='Perception-based TOP'):
         with Timer('Updating poses and utility map'):
             self.update()
 
@@ -171,12 +171,12 @@ class Mission:
             self.dump_situation()
 
     """ Decentrally solve (using glpk) """
-    def decentrally_solve(self, milp_formulation = 'Perception-based TSP',
+    def decentrally_solve(self, milp_formulation = 'Perception-based TOP',
              available_comlinks = None ):
         available_milp_formulation = {
-            'Perception-based TSP': self.solver.solve_perception_tsp,
-            'Position-based TSP'  : self.solver.solve_position_tsp,
-            'Perception-based TOP': self.solver.solve_ptop,
+            'Perception-based TOP': self.solver.solve_perception_top,
+            'Position-based TOP'  : self.solver.solve_position_top,
+            'SP': self.solver.solve_sp,
         }
         try:
             solver = available_milp_formulation[ milp_formulation ]
@@ -188,7 +188,7 @@ class Mission:
 
     """ Perform one whole decentralized planning loop, <n> times. """
     def decentralized_loop(self, n, DISPLAY = False, \
-            milp_formulation='Perception-based TSP'):
+            milp_formulation='Perception-based TOP'):
 
         for i in range(n):
             self.decentralized_loop_once(DISPLAY, milp_formulation)
@@ -208,7 +208,7 @@ class Mission:
 
     """ Perform one whole planning loop in a decentralized manner. """
     def decentralized_loop_once(self, DISPLAY = False, \
-            milp_formulation = 'Perception-based TSP'):
+            milp_formulation = 'Perception-based TOP'):
 
         with Timer('Updating poses and utility map'):
             self.update()
@@ -261,7 +261,7 @@ class Mission:
 
     """ Perform one whole decentralized parallely planning loop, <n> times. """
     def parallel_loop(self, n, DISPLAY = False, \
-            milp_formulation='Perception-based TSP'):
+            milp_formulation='Perception-based TOP'):
 
         for i in range(n):
             self.parallel_loop_once(DISPLAY, milp_formulation)
@@ -281,7 +281,7 @@ class Mission:
 
     """ Perform one whole parallelly planning loop in a decentralized manner. """
     def parallel_loop_once(self, DISPLAY = False, \
-            milp_formulation = 'Perception-based TSP'):
+            milp_formulation = 'Perception-based TOP'):
 
         with Timer('Updating poses and utility map'):
             self.update()

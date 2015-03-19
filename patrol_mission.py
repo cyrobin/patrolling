@@ -19,12 +19,12 @@ if __name__ == "__main__":
         mission =  Mission (  json_mission )
 
     #print "Starting Loop !"
-    #mission.loop(20,False,'Perception-based TSP')
-    #mission.loop(10,False,'Perception-based TOP')
+    #mission.loop(20,False,'Perception-based TOP')
+    #mission.loop(10,False,'Perception-based SP')
 
-    #mission.decentralized_loop(20,False,'Perception-based TSP')
+    #mission.decentralized_loop(20,False,'Perception-based TOP')
 
-    mission.parallel_loop(20,False,'Perception-based TSP')
+    mission.parallel_loop(20,False,'Perception-based TOP')
 
     #mission.sample_objective()
     #mission.sample_all_positions()

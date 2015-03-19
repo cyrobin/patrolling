@@ -24,14 +24,14 @@ class GLPKSolver:
 
         self.cost_penalty = COST_PENALTY
 
-    """ Solve the problem as a position-based multi-TSP.
+    """ Solve the problem as a position-based TOP.
     Update the plan of the team of Robots according to the best solution found
     before the time out, and return the solver status ('undef' or 'feas' or
     'opt' for 'no solution found', 'found one feasible solution', and 'found
     optimal solution' respectively. One may provide available comlinks,
     otherwise the solver will not consider the necessity of communications
     while planning."""
-    def solve_position_tsp(self, team, utility_map, observable_points, period,
+    def solve_position_top(self, team, utility_map, observable_points, period,
             available_comlinks = None ):
 
         # Utility = do not take sensor model into account
@@ -39,16 +39,16 @@ class GLPKSolver:
         def computed_utility( robot, position):
             return utility_map.image[position]
 
-        return self._solve_tsp(computed_utility, team, period, available_comlinks)
+        return self._solve_top(computed_utility, team, period, available_comlinks)
 
-    """ Solve the problem as a perception-based multi-TSP.
+    """ Solve the problem as a perception-based TOP.
     Update the plan of the team of Robots according to the best solution found
     before the time out, and return the solver status ('undef' or 'feas' or
     'opt' for 'no solution found', 'found one feasible solution', and 'found
     optimal solution' respectively. One may provide available comlinks,
     otherwise the solver will not consider the necessity of communications
     while planning."""
-    def solve_perception_tsp(self, team, utility_map, observable_points, period,
+    def solve_perception_top(self, team, utility_map, observable_points, period,
             available_comlinks = None ):
 
         # Utility = weighted sum of observed areas
@@ -57,16 +57,16 @@ class GLPKSolver:
                     robot.sensor(position,observed) \
                     for observed in observable_points )
 
-        return self._solve_tsp(computed_utility, team, period, available_comlinks)
+        return self._solve_top(computed_utility, team, period, available_comlinks)
 
-    """ Solve a multi-tsp-like problem as a flow formulation. The utility
+    """ Solve a top problem as a flow formulation. The utility
     function is given as an argument (mandatory).  Update the plan of the team
     of Robots according to the best solution found before the time out, and
     return the solver status ('undef' or 'feas' or 'opt' for 'no solution
     found', 'found one feasible solution', and 'found optimal solution'
     respectively. One may provide available comlinks, otherwise the solver will
     not consider the necessity of communications while planning."""
-    def _solve_tsp(self, computed_utility, team, period, \
+    def _solve_top(self, computed_utility, team, period, \
             available_comlinks = None ):
 
         # DATA: define useful sets
@@ -187,14 +187,14 @@ class GLPKSolver:
         return pb.status()
 
 
-    """ Solve a perception TOP problem as a flow formulation.
+    """ Solve a SP problem as a flow formulation.
     Update the plan of the team of Robots according to the best solution found
     before the time out, and return the solver status ('undef' or 'feas' or
     'opt' for 'no solution found', 'found one feasible solution', and 'found
     optimal solution' respectively.
     One may provide available comlinks, otherwise the solver will not consider
     the necessity of communications while planning."""
-    def solve_ptop(self, team, utility_map, observable_points, period,
+    def solve_sp(self, team, utility_map, observable_points, period,
             available_comlinks = None ):
 
         # DATA: define useful sets
@@ -311,7 +311,7 @@ class GLPKSolver:
         # Maximize the utility gathered along the path
         pb.max( sum( u[q]*y[q] for q in Q) - sum( self.cost_penalty*plan_cost[r] for r in R), 'utility' )
 
-        pb.solve() #solve the TOP problem
+        pb.solve() #solve the SP problem
 
         if VERBOSITY_LEVEL > 1:
             print "[Planning] GLPK Solver status:",pb.status()
