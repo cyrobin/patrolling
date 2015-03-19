@@ -37,7 +37,7 @@ class Mission:
         self.period      = self.mission[u'period']
         self.utility_map_file = self.mission[u'map']
 
-        self.utility_map = UtilityMap( self.utility_map_file )
+        self.utility_map = UtilityMap( self.utility_map_file, self.period )
 
         self.team = []
         for robot in self.mission[u'team']:

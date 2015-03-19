@@ -13,7 +13,7 @@ from constant import *
 class UtilityMap(Geomap):
     'A Geomap that specifically embodies utility'
 
-    def __init__(self, geofile):
+    def __init__(self, geofile,period):
         Geomap.__init__(self,geofile)
 
         # Use int32 instead of uint8 as utility can grow arbitrarily high
@@ -29,6 +29,7 @@ class UtilityMap(Geomap):
         # TODO load this from a separate file (independant from init value of
         # the utility
         self.utility_growth_mask = self.image.astype(np.float, copy=True) / 100
+        self.period = period # period of one run
 
         # Performance metrics
         self.size = sum( [1 for (q,w) in enumerate(self.utility_growth_mask.flat) if w >0 ] )
@@ -74,7 +75,7 @@ class UtilityMap(Geomap):
                     best_view = 0
 
                 self.image[ observable ] = utility * ( 1 - best_view ) \
-                    + self.utility_growth_mask[observable] * UTILITY_GROWTH_BY_PERIOD
+                    + self.utility_growth_mask[observable] * UTILITY_GROWTH_BY_TIME * self.period
 
         # Update performance metrics
         max_utility     = np.amax(self.image)
